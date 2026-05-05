@@ -1,50 +1,104 @@
-# Welcome to your Expo app 👋
+# IqraVerse
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern Quran reading experience built with Expo + React Native.
 
-## Get started
+IqraVerse combines offline-first Quran access with elegant Uthmani typography, smooth navigation, reflections, tafsir integration, bookmarks, and immersive recitation playback.
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+### Current
 
-2. Start the app
+* Offline Quran access via SQLite
+* Surah & Parah browsing
+* Uthmani Arabic rendering
+* Dark / Light mode
+* Smooth ayah scrolling
+* Ayah jump navigation
+* Search for Surahs and Parahs
+* Modern top-tab navigation
+* Interactive ayah actions
 
-   ```bash
-   npx expo start
-   ```
+### In Progress
 
-In the output, you'll find options to open the app in a
+* Quran.com API integration
+* Tafsir & translations
+* Reflections
+* Bookmarks
+* Last-read persistence
+* Qirat audio playback
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Tech Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+* Expo
+* React Native
+* Expo Router
+* SQLite
+* Quran.com API
+* Expo AV
+* Custom Uthmani font
 
-## Get a fresh project
-
-When you're ready, run:
+## Project Structure
 
 ```bash
-npm run reset-project
+app/
+components/
+assets/
+database/
+services/
+constants/
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Install dependencies
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Run development server
 
-## Join the community
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+### Android
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo run:android
+```
+
+### iOS
+
+```bash
+npx expo run:ios
+```
+
+## Environment Setup
+
+Create a `.env` file:
+
+```env
+QURAN_API_CLIENT_ID=
+QURAN_API_CLIENT_SECRET=
+```
+
+## Vision
+
+IqraVerse is designed to become more than a Quran reader.
+
+The goal is to create a thoughtful digital companion for reading, reflection, understanding, and spiritual consistency.
+
+## Roadmap
+
+* Multi-language translations
+* Advanced tafsir support
+* Audio recitations
+* Cloud sync
+* Daily reflections
+* Reading streaks
+* Personalized insights
+
+## License
+
+MIT
