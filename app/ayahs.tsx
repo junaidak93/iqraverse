@@ -1,0 +1,414 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, FlatList  } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite';
+import * as ayahService from '@/services/ayah-service';
+import * as surahService from '@/services/surah-service';
+import { Ayah } from '@/models/ayah';
+import { useLocalSearchParams } from 'expo-router';
+import { Surah } from '@/models/surah';
+import { useFonts } from '@/hooks/use-fonts';
+import { FlashList, FlashListRef } from "@shopify/flash-list";
+import { Dropdown } from 'react-native-element-dropdown';
+import { ColorScheme } from '@/helper/color-scheme-helper';
+import AyahOption from '@/models/ayahOption';
+
+
+export default function AyahList() {
+    useFonts();
+
+    const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+
+    const db = useSQLiteContext();
+    const [ayahs, setAyahs] = useState<Ayah[]>([]);
+    const [surahs, setSurahs] = useState<Surah[]>();
+    const [activeAyah, setActiveAyah] = useState<Ayah>();
+    const [activeAyahOption, setActiveAyahOption] = useState<AyahOption | null>();
+    const [isDropdownOpening, setIsDropdownOpening] = useState(false);
+
+    const params = useLocalSearchParams();
+    const surah_id : number = params.surah_id ? +params.surah_id : 0;
+    const parah_id : number = params.parah_id ? +params.parah_id : 0;
+
+    useEffect(() => {
+        async function fetchData() {
+        
+        const ayahList = surah_id > 0
+            ? await ayahService.getAllAyahsBySurahIndex(db, +surah_id)
+            : await ayahService.getAllAyahsByParahIndex(db, +parah_id);
+        
+        if (ayahList && ayahList.length > 0) {
+            const surahIds = [...new Set(ayahList.map(ayah => ayah.surah_id))].join(',');
+
+            let surahList = await surahService.getSurahsByIndices(db, surahIds);
+            setSurahs(surahList);
+        }
+
+        setAyahs(ayahList);
+      }
+      fetchData();
+    }, [db]);
+
+
+    const ayahOptions = useMemo(() => {
+      return ayahs?.map((a) => ({
+        id: `${a.surah_id} : ${a.ayah_id}`,
+        surah: `${surahs?.find(x => x.index === a.surah_id)?.ar_name}`,
+        label: `${a.ayah_id === 1 && a.surah_id !== 1 ? a.ar_text.replaceAll('بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ', '').trim() : a.ar_text}`,
+        value: a,
+      }));
+    }, [ayahs]);
+
+    const listRef = useRef<FlashListRef<Ayah>>(null);
+
+    const scrollToAyah = (item : AyahOption) => {
+      const index = ayahs.findIndex(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
+      const activeAyah = ayahs.find(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
+
+      if (index !== -1) {
+        listRef.current?.scrollToIndex({
+          index,
+          animated: true,
+        });
+
+        setActiveAyah(activeAyah);
+      }
+    };
+
+    const openSheet = (type: 'Translations' | 'Tafsirs' | 'Lessons' | 'Reflections') => {
+        alert(type + ' feature will be available in future versions; Insha\'Allah.');
+    };
+
+    const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ';
+
+    const isFirstAyah = (ayah: Ayah) => ayah.ayah_id === 1 && (
+        ayah.ar_text.startsWith(BISMILLAH) ||
+        isSurahTauba(ayah) // exclude Surah Tawbah
+    );
+
+    const isAyahBismillah = (ayah: Ayah) => ayah.ar_text == BISMILLAH;
+
+    const isSurahTauba = (ayah: Ayah) => ayah.surah_id === 9;
+
+    const getSurahRender = (ayah: Ayah) => {
+        if (surahs) {
+            let _surah = surahs.find(x => x.index === ayah.surah_id);
+
+            return (
+                <View style={styles.surahHeader}>
+                    <Text style={styles.surahName}>{_surah?.ar_name}</Text>
+                    <Text style={styles.translation}>{_surah?.en_meaning}</Text>
+                </View>
+            );
+        }
+
+        return (<></>);
+    };
+
+    const onAyahSelected = (ayah : Ayah) => {
+      setActiveAyah(ayah);
+      setActiveAyahOption(ayahOptions.find(x => x.value === ayah));
+    }
+
+    return (
+        <View style={styles.container}>
+        
+          <Dropdown
+            data={ayahOptions}
+            labelField="id"
+            valueField="value"
+            value={activeAyahOption}
+            autoScroll={isDropdownOpening}
+            search={true}
+            searchPlaceholder='Search'
+            inputSearchStyle={styles.inputSearchStyle}
+            onFocus={() => {
+              setIsDropdownOpening(true);
+              // Turn off autoScroll after a short delay (300ms)
+              // This gives it enough time to scroll smoothly but stops the "snapping"
+              setTimeout(() => setIsDropdownOpening(false), 300);
+            }}
+            placeholder="Go to Ayah"
+            activeColor={styles.dropdownActiveStyle.color}
+            onChange={(item) => { setActiveAyahOption(item); scrollToAyah(item); }}
+            style={styles.dropdown}
+            placeholderStyle={styles.dropdownTextStyle}
+            selectedTextStyle={styles.dropdownSelectedStyle}
+            containerStyle={styles.dropdownContainerStyle}
+            itemContainerStyle={styles.dropdownItemContainerStyle}
+            itemTextStyle={styles.dropdownTextStyle}
+          />
+
+          {/* Ayah List */}
+          <FlashList
+              //initialNumToRender={10}
+              //maxToRenderPerBatch={10}
+              //windowSize={5}
+              removeClippedSubviews={true}
+              data={ayahs}
+              ref={listRef}
+              keyExtractor={(item) => (item.surah_id.toString() + item.ayah_id.toString())}
+              renderItem={({ item }) => (
+              <View>
+
+                  {/* 🕌 Surah Header (only once) */}
+                  {isFirstAyah(item) && (
+                      <View style={styles.ayahContainer}>
+                          {getSurahRender(item)}
+
+                          <View style={styles.separator} />
+
+                          {/* 🧾 Bismillah */}
+                          {!isSurahTauba(item) && (
+                              <Text style={styles.bismillah}>{BISMILLAH}</Text>
+                          )}
+
+                          {/* <View style={{ height: 1, backgroundColor: '#222', marginVertical: 10 }} /> */}
+                      </View>
+                  )}
+
+                  {!isAyahBismillah(item) && (<View style={[styles.ayahContainer, item === activeAyah && { backgroundColor: '#1E7F5C22' }]}>
+
+                      {/* Ayah Number */}
+                      {/* <Text style={{...styles.tab, fontSize: 18}}>{item.surah_id} : {item.ayah_id}</Text> */}
+
+                      {/* Arabic */}
+                      {/* <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text> */}
+
+                      <Pressable onPress={() => onAyahSelected(item)}>
+                        {/* Ayah Number */}
+                        <Text style={{...styles.tab, fontSize: 18}}>{item.surah_id} : {item.ayah_id}</Text>
+
+                        {/* Arabic */}
+                        <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text>
+                      </Pressable>
+
+                      {/* Tabs */}
+                      <View style={styles.tabs}>
+                          <Pressable onPress={() => openSheet('Translations')}>
+                              <Text style={styles.tab}>Translations</Text>
+                          </Pressable>
+
+                          <Pressable onPress={() => openSheet('Tafsirs')}>
+                              <Text style={styles.tab}>Tafsirs</Text>
+                          </Pressable>
+
+                          <Pressable onPress={() => openSheet('Lessons')}>
+                              <Text style={styles.tab}>Lessons</Text>
+                          </Pressable>
+
+                          <Pressable onPress={() => openSheet('Reflections')}>
+                              <Text style={styles.tab}>Reflections</Text>
+                          </Pressable>
+                      </View>
+
+                  </View>)}
+              </View>
+              )}
+          />
+        </View>
+    );
+}
+
+const darkStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0f1511',
+  },
+
+  header: {
+    padding: 16,
+  },
+
+  bismillah: {
+    fontFamily: 'Uthmani',
+    textAlign: 'center',
+    fontSize: 24,
+    marginVertical: 12,
+    color: '#1E7F5C',
+  },
+
+  surahHeader: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+
+  surahName: {
+    fontFamily: 'Uthmani',
+    color: '#fff',
+    fontSize: 50,
+    fontWeight: '600',
+  },
+
+  ayahContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#222',
+  },
+
+  separator: {
+    height: 1, 
+    marginVertical: 10,
+    backgroundColor: '#222',
+  },
+
+  arabic: {
+    fontFamily: 'Uthmani',
+    color: '#fff',
+    fontSize: 28,
+    textAlign: 'right',
+    lineHeight: 48,
+    paddingTop: 15
+  },
+
+  translation: {
+    color: '#ccc',
+    marginTop: 12,
+    fontSize: 16,
+  },
+
+  tabs: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 16,
+  },
+
+  tab: {
+    color: '#888',
+    fontSize: 14,
+  },
+  dropdown: {
+    margin: 12,
+    marginTop: 50,
+    backgroundColor: '#1F2A24',
+    borderRadius: 10,
+    padding: 10,
+    borderColor: '#000',
+    borderWidth: 0.5,
+    width: '40%',
+    alignSelf: 'center'
+  },
+  dropdownActiveStyle:{
+    color: '#183a28'
+  },
+  dropdownTextStyle: {
+    color: '#aaa'
+  },
+  inputSearchStyle: {
+    color: '#eee4e4'
+  },
+  dropdownSelectedStyle: {
+    color: '#fff'
+  },
+  dropdownContainerStyle: {
+    backgroundColor: '#1F2A24',
+    borderColor: '#000',
+    borderWidth: 0.5,
+  },
+  dropdownItemContainerStyle: {
+    backgroundColor: '#1F2A24'
+  }
+});
+
+const lightStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F9F8', // soft off-white (better than pure white)
+  },
+
+  header: {
+    padding: 16,
+  },
+
+  bismillah: {
+    fontFamily: 'Uthmani',
+    textAlign: 'center',
+    fontSize: 24,
+    marginVertical: 12,
+    color: '#1E7F5C', // keep brand color
+  },
+
+  surahHeader: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+
+  surahName: {
+    fontFamily: 'Uthmani',
+    color: '#0F1511', // dark text instead of black
+    fontSize: 50,
+    fontWeight: '600',
+  },
+
+  ayahContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB', // subtle divider
+  },
+
+  separator: {
+    height: 1, 
+    marginVertical: 10,
+    backgroundColor: '#E5E7EB',
+  },
+
+  arabic: {
+    fontFamily: 'Uthmani',
+    color: '#111827', // deep gray (easier on eyes)
+    fontSize: 28,
+    textAlign: 'right',
+    lineHeight: 48,
+    paddingTop: 15,
+  },
+
+  translation: {
+    color: '#4B5563', // softer gray
+    marginTop: 12,
+    fontSize: 16,
+  },
+
+  tabs: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 16,
+  },
+
+  tab: {
+    color: '#6B7280',
+    fontSize: 14,
+  },
+
+  dropdown: {
+    margin: 12,
+    marginTop: 50,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 10,
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+    width: '40%',
+    alignSelf: 'center'
+  },
+  dropdownActiveStyle:{
+    color: '#c8f1db'
+  },
+  dropdownTextStyle: {
+    color: '#666'
+  },
+  inputSearchStyle: {
+    color: '#4c4848'
+  },
+  dropdownSelectedStyle: {
+    color: '#000'
+  },
+  dropdownContainerStyle: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+  },
+  dropdownItemContainerStyle: {
+    backgroundColor: '#FFFFFF'
+  }
+});
+
+
+

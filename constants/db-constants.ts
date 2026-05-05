@@ -1,0 +1,22 @@
+export default {
+    // Database Configuration
+    DATABASE_NAME : "quran.db",
+    DB_USER : "admin",
+    DB_PASS : "your_secure_password_here",
+
+    // Table Names
+    TABLE_PARAH : "parahs",
+    TABLE_SURAH : "surahs",
+    TABLE_AYAH : "ayahs",
+
+    // Column Names
+    PARAH_ID : "parah_id",
+    INDEX: "`index`",
+    SURAH_ID : "surah_id",
+    AYAH_ID : "ayah_id",
+    PARAH_ID_PLURAL : "parah_ids",
+    ARABIC_NAME : "ar_name",
+    ENGLISH_NAME : "en_name",
+    NUMBER_OF_AYAH : "ayah_count",
+    NUMBER_OF_RAKU : "raku_count"
+};

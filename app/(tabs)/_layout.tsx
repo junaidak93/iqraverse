@@ -1,35 +1,56 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { withLayoutContext } from 'expo-router';
+import { ColorScheme } from '@/helper/color-scheme-helper';
+import { StatusBar, View } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const Tab = createMaterialTopTabNavigator();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+// This connects React Navigation with Expo Router
+const TopTabs = withLayoutContext(Tab.Navigator);
+
+export default function TabsLayout() {
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+      <TopTabs
+        screenOptions={{
+          tabBarGap: 90,
+          tabBarShowLabel: true,
+          tabBarScrollEnabled: true,
+          tabBarLabelStyle: {
+            fontWeight: '900',
+            textTransform: 'none',
+            alignContent: 'center',
+            alignItems: 'stretch',
+            marginTop: 50,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: '#1E7F5C',
+            height: 3,
+            borderRadius: 10,
+            marginHorizontal: 0,
+          },
+          tabBarStyle: {
+            backgroundColor: ColorScheme.isDarkMode ? '#222' : '#fff',
+            elevation: 10,
+          },
+          tabBarItemStyle: {
+            width: 'auto',
+            paddingHorizontal: 12,
+            marginStart: 10
+          },
+          tabBarActiveTintColor: '#1E7F5C',
+          tabBarInactiveTintColor: '#999',
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <TopTabs.Screen
+          name="surahs"
+          options={{ title: 'By Surah' }}
+        />
+        <TopTabs.Screen
+          name="parahs"
+          options={{ title: 'By Juz' }}
+        />
+      </TopTabs>
   );
 }
