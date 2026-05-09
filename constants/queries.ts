@@ -5,7 +5,7 @@ export const GET_ALL_SURAHS = `SELECT * FROM ${dbConstants.TABLE_SURAH}`;
 export const GET_ALL_AYAHS_BY_SURAH_ID = `SELECT * FROM ${dbConstants.TABLE_AYAH} WHERE ${dbConstants.SURAH_ID} = ?`;
 export const GET_ALL_AYAHS_BY_PARAH_ID = `SELECT * FROM ${dbConstants.TABLE_AYAH} WHERE ${dbConstants.PARAH_ID} = ?`;
 export const GET_AYAH_BY_ID = `SELECT * FROM ${dbConstants.TABLE_AYAH} WHERE ${dbConstants.AYAH_ID} = ? AND ${dbConstants.SURAH_ID} = ?`;
-export const GET_PARAH_BY_ID = `SELECT * FROM ${dbConstants.TABLE_PARAH} WHERE ${dbConstants.PARAH_ID} = ?`;
+export const GET_PARAH_BY_ID = `SELECT * FROM ${dbConstants.TABLE_PARAH} WHERE ${dbConstants.INDEX} = ?`;
 export const GET_SURAH_BY_ID = `SELECT * FROM ${dbConstants.TABLE_SURAH} WHERE ${dbConstants.INDEX} IN (?)`;
 export const GET_AYAH_COUNT_BY_SURAH_ID = `SELECT COUNT(*) as count FROM ${dbConstants.TABLE_AYAH} WHERE ${dbConstants.SURAH_ID} = ?`;
 export const GET_AYAH_COUNT_BY_PARAH_ID = `SELECT COUNT(*) as count FROM ${dbConstants.TABLE_AYAH} WHERE ${dbConstants.PARAH_ID} = ?`;

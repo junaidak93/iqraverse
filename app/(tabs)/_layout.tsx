@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { withLayoutContext } from 'expo-router';
-import { ColorScheme } from '@/helper/color-scheme-helper';
-import { StatusBar, View } from 'react-native';
+import { StatusBar, useWindowDimensions, View } from 'react-native';
+import AppHeader from '@/components/app-header';
+import { ThemeContext } from '@/providers/contexts';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -11,18 +12,25 @@ const TopTabs = withLayoutContext(Tab.Navigator);
 
 export default function TabsLayout() {
 
+  const { width } = useWindowDimensions();
+  const { isDarkMode } = useContext(ThemeContext);
+
   return (
+    <View style={{ flex: 1, backgroundColor: isDarkMode ? '#0f1511' : '#F7F9F8' }}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent={true} backgroundColor="transparent" />
+      <AppHeader title='IqraVerse' />
+      
       <TopTabs
         screenOptions={{
-          tabBarGap: 90,
+          tabBarGap: 0,
           tabBarShowLabel: true,
           tabBarScrollEnabled: true,
           tabBarLabelStyle: {
-            fontWeight: '900',
-            textTransform: 'none',
+            fontWeight: '700',
+            textTransform: 'capitalize',
             alignContent: 'center',
             alignItems: 'stretch',
-            marginTop: 50,
+            marginTop: 10,
           },
           tabBarIndicatorStyle: {
             backgroundColor: '#1E7F5C',
@@ -31,13 +39,13 @@ export default function TabsLayout() {
             marginHorizontal: 0,
           },
           tabBarStyle: {
-            backgroundColor: ColorScheme.isDarkMode ? '#222' : '#fff',
+            backgroundColor: isDarkMode ? '#222' : '#fff',
             elevation: 10,
           },
           tabBarItemStyle: {
-            width: 'auto',
-            paddingHorizontal: 12,
-            marginStart: 10
+            width: width / 2,
+            paddingHorizontal: 0,
+            marginStart: 0
           },
           tabBarActiveTintColor: '#1E7F5C',
           tabBarInactiveTintColor: '#999',
@@ -52,5 +60,6 @@ export default function TabsLayout() {
           options={{ title: 'By Juz' }}
         />
       </TopTabs>
+    </View>
   );
 }

@@ -1,14 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as surahService from '@/services/surah-service';
 import { Surah } from '@/models/surah';
 import QuranCard from '../../components/quran-card';
 import { useFonts } from '@/hooks/use-fonts';
-import { FlashList } from '@shopify/flash-list';
-import { ColorScheme } from '@/helper/color-scheme-helper';
 import SearchBox from '@/components/searchbox';
-import debounce from '@/helper/debouncer';
+import { ThemeContext } from '@/providers/contexts';
 
 export default function SurahList() {
   useFonts();
@@ -16,7 +14,8 @@ export default function SurahList() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+  const { isDarkMode } = useContext(ThemeContext);
+  const styles = isDarkMode ? darkStyles : lightStyles;
 
   useEffect(() => {
     async function fetchData() {
@@ -38,12 +37,12 @@ export default function SurahList() {
   }, [searchText, surahs]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, ...styles.list }}>
       <SearchBox value={searchText} onChange={setSearchText} />
 
       <FlatList
         numColumns={2}
-        style={styles.list}
+        //style={styles.list}
         //contentContainerStyle={{ alignSelf: 'flex-start' }}
         data={filteredSurahs}
         keyExtractor={(item) => item.index.toString()}
@@ -67,7 +66,7 @@ export default function SurahList() {
 
 const darkStyles = StyleSheet.create({
   list: {
-    backgroundColor: '#282626'
+    backgroundColor: '#0f1511'//'#282626'
   }
 });
 

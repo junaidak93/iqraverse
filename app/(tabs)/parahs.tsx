@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as parahService from '@/services/parah-service';
 import { Parah } from '@/models/parah';
 import QuranCard from '../../components/quran-card';
 import { useFonts } from '@/hooks/use-fonts';
-import { ColorScheme } from '@/helper/color-scheme-helper';
+import { ThemeContext } from '@/providers/contexts';
 import SearchBox from '@/components/searchbox';
 
 export default function ParahList() {
@@ -14,7 +14,8 @@ export default function ParahList() {
   const [parahs, setParahs] = useState<Parah[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+  const { isDarkMode } = useContext(ThemeContext);  
+  const styles = isDarkMode ? darkStyles : lightStyles;
 
   useEffect(() => {
     async function fetchData() {
@@ -36,11 +37,10 @@ export default function ParahList() {
   }, [searchText, parahs]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, ...styles.list }}>
       <SearchBox value={searchText} onChange={setSearchText} />
 
       <FlatList
-        style={styles.list}
         numColumns={2}
         contentContainerStyle={{ alignSelf: 'flex-start' }}
         data={filteredParahs}
@@ -63,7 +63,7 @@ export default function ParahList() {
 
 const darkStyles = StyleSheet.create({
   list: {
-    backgroundColor: '#282626'
+    backgroundColor: '#0f1511'//'#282626'
   }
 });
 

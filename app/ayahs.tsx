@@ -1,22 +1,26 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, FlatList  } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
+import { View, Text, StyleSheet, Pressable, FlatList, Image, StatusBar  } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ayahService from '@/services/ayah-service';
 import * as surahService from '@/services/surah-service';
+import * as parahService from '@/services/parah-service';
 import { Ayah } from '@/models/ayah';
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { Surah } from '@/models/surah';
 import { useFonts } from '@/hooks/use-fonts';
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { Dropdown } from 'react-native-element-dropdown';
-import { ColorScheme } from '@/helper/color-scheme-helper';
+import { ThemeContext } from '@/providers/contexts';
 import AyahOption from '@/models/ayahOption';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '@/components/app-header';
 
 
 export default function AyahList() {
     useFonts();
 
-    const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+    const { isDarkMode } = useContext(ThemeContext);  
+    const styles = isDarkMode ? darkStyles : lightStyles;
 
     const db = useSQLiteContext();
     const [ayahs, setAyahs] = useState<Ayah[]>([]);
@@ -24,6 +28,7 @@ export default function AyahList() {
     const [activeAyah, setActiveAyah] = useState<Ayah>();
     const [activeAyahOption, setActiveAyahOption] = useState<AyahOption | null>();
     const [isDropdownOpening, setIsDropdownOpening] = useState(false);
+    const [title, setTitle] = useState<string>("IqraVerse");
 
     const params = useLocalSearchParams();
     const surah_id : number = params.surah_id ? +params.surah_id : 0;
@@ -35,6 +40,12 @@ export default function AyahList() {
         const ayahList = surah_id > 0
             ? await ayahService.getAllAyahsBySurahIndex(db, +surah_id)
             : await ayahService.getAllAyahsByParahIndex(db, +parah_id);
+
+        const surahOrParah = surah_id > 0 
+          ? (await surahService.getSurahByIndex(db, surah_id))
+          : (await parahService.getParahByIndex(db, parah_id));
+
+        setTitle(`${surahOrParah?.en_name} - ${surahOrParah?.ar_name}`);
         
         if (ayahList && ayahList.length > 0) {
             const surahIds = [...new Set(ayahList.map(ayah => ayah.surah_id))].join(',');
@@ -45,6 +56,7 @@ export default function AyahList() {
 
         setAyahs(ayahList);
       }
+
       fetchData();
     }, [db]);
 
@@ -111,6 +123,9 @@ export default function AyahList() {
 
     return (
         <View style={styles.container}>
+
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent={true} backgroundColor="transparent" />
+          <AppHeader title={title} showBack={true} />
         
           <Dropdown
             data={ayahOptions}
@@ -140,9 +155,6 @@ export default function AyahList() {
 
           {/* Ayah List */}
           <FlashList
-              //initialNumToRender={10}
-              //maxToRenderPerBatch={10}
-              //windowSize={5}
               removeClippedSubviews={true}
               data={ayahs}
               ref={listRef}
@@ -180,24 +192,40 @@ export default function AyahList() {
 
                         {/* Arabic */}
                         <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text>
+
+                        {/* Arabic */}
+                        <Text style={{...styles.tab, marginTop: 10}}>Translation:</Text>
+                        <Text style={{...styles.translation, paddingBottom: 10}}>{item.en_meaning}</Text>
                       </Pressable>
 
                       {/* Tabs */}
                       <View style={styles.tabs}>
-                          <Pressable onPress={() => openSheet('Translations')}>
-                              <Text style={styles.tab}>Translations</Text>
+                          <Link href={{ pathname: '/details', params: { ayahKey: `${item.surah_id}:${item.ayah_id}`, action: 'Translations' } }} >
+                            <View>
+                              <MaterialIcons name="language" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
+                              <Text style={{...styles.tab, marginTop: 10}}>Translations</Text>
+                            </View>
+                          </Link>
+
+                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: `${item.surah_id}:${item.ayah_id}`, action: 'Tafsirs' } }} >
+                              <View>
+                                <MaterialIcons name="menu-book" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
+                                <Text style={{...styles.tab, marginTop: 10}}>Tafsirs</Text>
+                              </View>
+                          </Link>
+
+                          <Pressable style={{ marginLeft: 5 }} onPress={() => openSheet('Lessons')}>
+                              <View>
+                                <MaterialCommunityIcons name="lightbulb-outline" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
+                                <Text style={{...styles.tab, marginTop: 10}}>Lessons</Text>
+                              </View>
                           </Pressable>
 
-                          <Pressable onPress={() => openSheet('Tafsirs')}>
-                              <Text style={styles.tab}>Tafsirs</Text>
-                          </Pressable>
-
-                          <Pressable onPress={() => openSheet('Lessons')}>
-                              <Text style={styles.tab}>Lessons</Text>
-                          </Pressable>
-
-                          <Pressable onPress={() => openSheet('Reflections')}>
-                              <Text style={styles.tab}>Reflections</Text>
+                          <Pressable style={{ marginLeft: 5 }} onPress={() => openSheet('Reflections')}>
+                              <View>
+                                <MaterialIcons name="self-improvement" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
+                                <Text style={{...styles.tab, marginTop: 10}}>Reflections</Text>
+                              </View>
                           </Pressable>
                       </View>
 
@@ -229,7 +257,7 @@ const darkStyles = StyleSheet.create({
 
   surahHeader: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 0,
   },
 
   surahName: {
@@ -268,7 +296,7 @@ const darkStyles = StyleSheet.create({
 
   tabs: {
     flexDirection: 'row',
-    marginTop: 12,
+    marginTop: 20,
     gap: 16,
   },
 
@@ -278,7 +306,7 @@ const darkStyles = StyleSheet.create({
   },
   dropdown: {
     margin: 12,
-    marginTop: 50,
+    marginTop: 20,
     backgroundColor: '#1F2A24',
     borderRadius: 10,
     padding: 10,
@@ -329,7 +357,7 @@ const lightStyles = StyleSheet.create({
 
   surahHeader: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 0,
   },
 
   surahName: {
@@ -368,7 +396,7 @@ const lightStyles = StyleSheet.create({
 
   tabs: {
     flexDirection: 'row',
-    marginTop: 12,
+    marginTop: 20,
     gap: 16,
   },
 
@@ -379,7 +407,7 @@ const lightStyles = StyleSheet.create({
 
   dropdown: {
     margin: 12,
-    marginTop: 50,
+    marginTop: 20,
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
@@ -409,6 +437,3 @@ const lightStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF'
   }
 });
-
-
-
