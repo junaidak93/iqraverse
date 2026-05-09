@@ -1,9 +1,10 @@
-import { ColorScheme } from '@/helper/color-scheme-helper';
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useContext } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
+import { ThemeContext } from '@/providers/contexts';
 
 export default function SearchBox({ value, onChange }: { value: string, onChange: Dispatch<React.SetStateAction<string>> }) {  
-    const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+  const { isDarkMode } = useContext(ThemeContext);  
+  const styles = isDarkMode ? darkStyles : lightStyles;
 
     return (
     <View style={styles.container}>
@@ -21,7 +22,7 @@ export default function SearchBox({ value, onChange }: { value: string, onChange
 const darkStyles = StyleSheet.create({
   container: {
     padding: 12,
-    backgroundColor: '#282626'
+    backgroundColor: '#0f1511'//'#282626'
   },
   input: {
     backgroundColor: '#1F2A24',

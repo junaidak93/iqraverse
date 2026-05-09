@@ -1,7 +1,7 @@
-import { ColorScheme } from '@/helper/color-scheme-helper';
 import { Href, Link } from 'expo-router';
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { ThemeContext } from '@/providers/contexts';
 
 type Props = {
   index: string;
@@ -31,8 +31,8 @@ export default function QuranCard({
   href
 }: Props) {
   const isSurah = type === 'surah';
-  
-  const styles = ColorScheme.isDarkMode ? darkStyles : lightStyles;
+  const { isDarkMode } = useContext(ThemeContext);  
+  const styles = isDarkMode ? darkStyles : lightStyles;
 
   return (
     <View style={[styles.card, isSurah ? styles.blueCard : styles.greenCard]}>
