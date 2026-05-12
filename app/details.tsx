@@ -7,7 +7,7 @@ import { useEffect, useState, useContext } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import RenderHtml from 'react-native-render-html';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 import ExpandableCard from "@/components/expandable-card";
 import AppHeader from "@/components/app-header";
 
@@ -18,7 +18,7 @@ export default function Details() {
     const isTafsirRequested = params.action === 'Tafsirs';
     const title = params.action as string;
 
-    const { isDarkMode } = useContext(ThemeContext);  
+    const { isDarkMode } = useContext(AppContext);  
     const styles = isDarkMode ? darkStyles : lightStyles;
 
     const [resources, setResources] = useState<Record<string, Resource[]>>({});
@@ -75,7 +75,7 @@ export default function Details() {
 
     return (
         <View style={styles.container}>
-            <AppHeader title={title} showBack={true} />
+            <AppHeader title={title} showBack={true} showSettings={false} showThemeToggle={false} />
 
             <Dropdown
                 data={resourceKeys}

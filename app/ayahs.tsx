@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
-import { View, Text, StyleSheet, Pressable, FlatList, Image, StatusBar  } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState, useContext, act } from 'react';
+import { View, Text, StyleSheet, Pressable, StatusBar, Alert  } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ayahService from '@/services/ayah-service';
 import * as surahService from '@/services/surah-service';
@@ -10,16 +10,19 @@ import { Surah } from '@/models/surah';
 import { useFonts } from '@/hooks/use-fonts';
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { Dropdown } from 'react-native-element-dropdown';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 import AyahOption from '@/models/ayahOption';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import AppHeader from '@/components/app-header';
+import { AudioPlayer, AudioPlayerRef } from '@/components/audio-player';
+import { getAyahAudio } from '@/assets/static-data/sample-audio';
+import { getAyahKey, getAyahDisplayKey } from '@/helper/key-helper';
 
 
 export default function AyahList() {
     useFonts();
 
-    const { isDarkMode } = useContext(ThemeContext);  
+    const { isDarkMode, updateLastRead, reciterId, autoPlayNextAyah } = useContext(AppContext);
     const styles = isDarkMode ? darkStyles : lightStyles;
 
     const db = useSQLiteContext();
@@ -30,20 +33,23 @@ export default function AyahList() {
     const [isDropdownOpening, setIsDropdownOpening] = useState(false);
     const [title, setTitle] = useState<string>("IqraVerse");
 
+    const childRefs = useRef<Record<string, AudioPlayerRef | null>>({});
+
     const params = useLocalSearchParams();
     const surah_id : number = params.surah_id ? +params.surah_id : 0;
     const parah_id : number = params.parah_id ? +params.parah_id : 0;
+    const ayah_id : number = params.ayah_id ? +params.ayah_id : 0;
 
     useEffect(() => {
-        async function fetchData() {
+      async function fetchData() {
         
-        const ayahList = surah_id > 0
-            ? await ayahService.getAllAyahsBySurahIndex(db, +surah_id)
-            : await ayahService.getAllAyahsByParahIndex(db, +parah_id);
+        const ayahList = parah_id > 0
+            ? await ayahService.getAllAyahsByParahIndex(db, +parah_id)
+            : await ayahService.getAllAyahsBySurahIndex(db, +surah_id);
 
-        const surahOrParah = surah_id > 0 
-          ? (await surahService.getSurahByIndex(db, surah_id))
-          : (await parahService.getParahByIndex(db, parah_id));
+        const surahOrParah = parah_id > 0 
+          ? (await parahService.getParahByIndex(db, parah_id))
+          : (await surahService.getSurahByIndex(db, surah_id));
 
         setTitle(`${surahOrParah?.en_name} - ${surahOrParah?.ar_name}`);
         
@@ -58,12 +64,21 @@ export default function AyahList() {
       }
 
       fetchData();
-    }, [db]);
+    }, []);
 
+
+    useEffect(() => {
+      if (ayahs && ayahs.length > 0 && ayah_id && surah_id) {
+        const ayah = ayahs.find(x => x.ayah_id === ayah_id && x.surah_id === surah_id);
+        if (ayah) {
+          onAyahSelected(ayah);
+        }
+      }
+    }, [ayahs]);
 
     const ayahOptions = useMemo(() => {
       return ayahs?.map((a) => ({
-        id: `${a.surah_id} : ${a.ayah_id}`,
+        id: getAyahDisplayKey(a),
         surah: `${surahs?.find(x => x.index === a.surah_id)?.ar_name}`,
         label: `${a.ayah_id === 1 && a.surah_id !== 1 ? a.ar_text.replaceAll('بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ', '').trim() : a.ar_text}`,
         value: a,
@@ -74,7 +89,7 @@ export default function AyahList() {
 
     const scrollToAyah = (item : AyahOption) => {
       const index = ayahs.findIndex(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
-      const activeAyah = ayahs.find(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
+      const _activeAyah = ayahs.find(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
 
       if (index !== -1) {
         listRef.current?.scrollToIndex({
@@ -82,12 +97,14 @@ export default function AyahList() {
           animated: true,
         });
 
-        setActiveAyah(activeAyah);
+        if (activeAyah !== _activeAyah) {
+          setActiveAyah(_activeAyah);
+        }
       }
     };
 
     const openSheet = (type: 'Translations' | 'Tafsirs' | 'Lessons' | 'Reflections') => {
-        alert(type + ' feature will be available in future versions; Insha\'Allah.');
+      Alert.alert(`${type} will be available soon!`, "This is a feature where you may use this space to contemplate how the wisdom of the Quran connects with your life and faith.");
     };
 
     const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ';
@@ -118,14 +135,48 @@ export default function AyahList() {
 
     const onAyahSelected = (ayah : Ayah) => {
       setActiveAyah(ayah);
-      setActiveAyahOption(ayahOptions.find(x => x.value === ayah));
+
+      const option = ayahOptions.find(x => x.value === ayah) as AyahOption;
+      setActiveAyahOption(option);
+      scrollToAyah(option);
+
+      updateLastRead({
+        parah_id,
+        surah_id: ayah.surah_id,
+        ayah_id: ayah.ayah_id
+      });
+    }
+
+    const getAudioUrl = (ayah: Ayah) => getAyahAudio(ayah, reciterId);
+
+    const play = (ayah: Ayah) => {
+      if (activeAyah) {
+        childRefs?.current[getAyahKey(ayah)]?.pause();
+      }
+
+      onAyahSelected(ayah);
+      childRefs?.current[getAyahKey(ayah)]?.playOrPause();
+    }
+
+    const onAudioCompleted = (ayah: Ayah) => {
+      if (!autoPlayNextAyah) {
+        return;
+      }
+
+      const index = ayahs.findIndex(x => x === ayah);
+
+      if (index < ayahs.length - 1) {
+        const nextAyah = ayahs[index + 1];
+        onAyahSelected(nextAyah);
+        childRefs?.current[getAyahKey(nextAyah)]?.playOrPause();
+      }
     }
 
     return (
         <View style={styles.container}>
 
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent={true} backgroundColor="transparent" />
-          <AppHeader title={title} showBack={true} />
+          <AppHeader title={title} showBack={true} showSettings={false} />
         
           <Dropdown
             data={ayahOptions}
@@ -158,6 +209,7 @@ export default function AyahList() {
               removeClippedSubviews={true}
               data={ayahs}
               ref={listRef}
+              style={{ marginBottom: 50 }}
               keyExtractor={(item) => (item.surah_id.toString() + item.ayah_id.toString())}
               renderItem={({ item }) => (
               <View>
@@ -180,15 +232,9 @@ export default function AyahList() {
 
                   {!isAyahBismillah(item) && (<View style={[styles.ayahContainer, item === activeAyah && { backgroundColor: '#1E7F5C22' }]}>
 
-                      {/* Ayah Number */}
-                      {/* <Text style={{...styles.tab, fontSize: 18}}>{item.surah_id} : {item.ayah_id}</Text> */}
-
-                      {/* Arabic */}
-                      {/* <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text> */}
-
                       <Pressable onPress={() => onAyahSelected(item)}>
                         {/* Ayah Number */}
-                        <Text style={{...styles.tab, fontSize: 18}}>{item.surah_id} : {item.ayah_id}</Text>
+                        <Text style={{...styles.tab, fontSize: 18}}>{getAyahDisplayKey(item)}</Text>
 
                         {/* Arabic */}
                         <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text>
@@ -200,39 +246,58 @@ export default function AyahList() {
 
                       {/* Tabs */}
                       <View style={styles.tabs}>
-                          <Link href={{ pathname: '/details', params: { ayahKey: `${item.surah_id}:${item.ayah_id}`, action: 'Translations' } }} >
+                          <Pressable onPress={() => play(item)}>
+                            <View pointerEvents="none">
+                              <AudioPlayer
+                                audioSource={getAudioUrl(item)}
+                                onCompleted={() => onAudioCompleted(item)}
+                                ref={(el) => {
+                                  const key = getAyahKey(item);
+                                  if (el) {
+                                    childRefs.current[key] = el;
+                                  } else {
+                                    delete childRefs.current[key];
+                                  }
+                                }}
+                              />
+                              <Text style={{...styles.tab, marginTop: 8}}>Recitation</Text>
+                            </View>
+                          </Pressable>
+
+                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahDisplayKey(item), action: 'Translations' } }} >
                             <View>
                               <MaterialIcons name="language" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                               <Text style={{...styles.tab, marginTop: 10}}>Translations</Text>
                             </View>
                           </Link>
 
-                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: `${item.surah_id}:${item.ayah_id}`, action: 'Tafsirs' } }} >
+                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahDisplayKey(item), action: 'Tafsirs' } }} >
                               <View>
                                 <MaterialIcons name="menu-book" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                                 <Text style={{...styles.tab, marginTop: 10}}>Tafsirs</Text>
                               </View>
                           </Link>
 
-                          <Pressable style={{ marginLeft: 5 }} onPress={() => openSheet('Lessons')}>
+                          {/* <Pressable style={{ marginLeft: 5 }} onPress={() => openSheet('Lessons')}>
                               <View>
                                 <MaterialCommunityIcons name="lightbulb-outline" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                                 <Text style={{...styles.tab, marginTop: 10}}>Lessons</Text>
                               </View>
-                          </Pressable>
+                          </Pressable> */}
 
                           <Pressable style={{ marginLeft: 5 }} onPress={() => openSheet('Reflections')}>
                               <View>
                                 <MaterialIcons name="self-improvement" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                                 <Text style={{...styles.tab, marginTop: 10}}>Reflections</Text>
                               </View>
-                          </Pressable>
+                          </Pressable> 
                       </View>
 
                   </View>)}
               </View>
               )}
           />
+          
         </View>
     );
 }

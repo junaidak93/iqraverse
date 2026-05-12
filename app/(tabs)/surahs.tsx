@@ -6,7 +6,7 @@ import { Surah } from '@/models/surah';
 import QuranCard from '../../components/quran-card';
 import { useFonts } from '@/hooks/use-fonts';
 import SearchBox from '@/components/searchbox';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 
 export default function SurahList() {
   useFonts();
@@ -14,7 +14,7 @@ export default function SurahList() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  const { isDarkMode } = useContext(ThemeContext);
+  const { isDarkMode } = useContext(AppContext);
   const styles = isDarkMode ? darkStyles : lightStyles;
 
   useEffect(() => {

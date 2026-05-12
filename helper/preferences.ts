@@ -9,5 +9,8 @@ export async function getValueFor(key: string) {
 }
 
 export const keys = {
-    isDarkMode: "isDarkMode"
+    lastRead: "lastRead",
+    theme: "theme",
+    reciterId: "reciterId",
+    autoPlayNextAyah: "autoPlayNextAyah",
 }

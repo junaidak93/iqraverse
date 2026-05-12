@@ -3,7 +3,8 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { withLayoutContext } from 'expo-router';
 import { StatusBar, useWindowDimensions, View } from 'react-native';
 import AppHeader from '@/components/app-header';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
+import ContinueReadingButton from '@/components/continue-reading';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -13,12 +14,12 @@ const TopTabs = withLayoutContext(Tab.Navigator);
 export default function TabsLayout() {
 
   const { width } = useWindowDimensions();
-  const { isDarkMode } = useContext(ThemeContext);
+  const { isDarkMode, lastRead } = useContext(AppContext);
 
   return (
     <View style={{ flex: 1, backgroundColor: isDarkMode ? '#0f1511' : '#F7F9F8' }}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent={true} backgroundColor="transparent" />
-      <AppHeader title='IqraVerse' />
+      <AppHeader title='IqraVerse - Learn Quran' showAsMainTitle={true} />
       
       <TopTabs
         screenOptions={{
@@ -60,6 +61,8 @@ export default function TabsLayout() {
           options={{ title: 'By Juz' }}
         />
       </TopTabs>
+
+      <ContinueReadingButton lastRead={lastRead} />
     </View>
   );
 }

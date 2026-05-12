@@ -1,12 +1,23 @@
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 import dbConstants from '../constants/db-constants';
-import { ThemeProvider } from '@/providers/theme-provider';
+import { AppProvider } from '@/providers/app-provider';
+import { setAudioModeAsync } from 'expo-audio';
 
 export default function RootLayout() {
   const dbPath = require('../assets/database/quran.db');
+
+  useEffect(() => {
+    const initAudio = async () => {
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+      });
+    };
+
+    initAudio();
+  }, []);
 
   return (
     <Suspense fallback={<ActivityIndicator size="large" />}>
@@ -14,7 +25,7 @@ export default function RootLayout() {
         databaseName={dbConstants.DATABASE_NAME}
         assetSource={{ assetId: dbPath }}
       >
-        <ThemeProvider>
+        <AppProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="ayahs" />
@@ -29,8 +40,9 @@ export default function RootLayout() {
                 headerShown: false
               }}
             />
+            <Stack.Screen name="settings" />
           </Stack>
-        </ThemeProvider>
+        </AppProvider>
       </SQLiteProvider>
     </Suspense>
   );
