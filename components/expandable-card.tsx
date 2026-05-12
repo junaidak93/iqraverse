@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Or use any icon library
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 
 // Enable LayoutAnimation for Android
 // if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -11,7 +11,7 @@ import { ThemeContext } from '@/providers/contexts';
 const ExpandableCard = ({ id, header, children, onExpanded, defaultExpanded = false } : { id: string | number, header: any, children: any, onExpanded: (key: string | number) => any, defaultExpanded: boolean }) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const { isDarkMode } = useContext(ThemeContext);  
+  const { isDarkMode } = useContext(AppContext);  
   const styles = isDarkMode ? darkModeSytles : lightModeStyles;
 
   const toggleExpand = () => {

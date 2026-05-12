@@ -1,7 +1,7 @@
 import { Href, Link } from 'expo-router';
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 
 type Props = {
   index: string;
@@ -31,7 +31,7 @@ export default function QuranCard({
   href
 }: Props) {
   const isSurah = type === 'surah';
-  const { isDarkMode } = useContext(ThemeContext);  
+  const { isDarkMode } = useContext(AppContext);  
   const styles = isDarkMode ? darkStyles : lightStyles;
 
   return (

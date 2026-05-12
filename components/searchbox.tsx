@@ -1,9 +1,9 @@
 import React, { Dispatch, useContext } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 
 export default function SearchBox({ value, onChange }: { value: string, onChange: Dispatch<React.SetStateAction<string>> }) {  
-  const { isDarkMode } = useContext(ThemeContext);  
+  const { isDarkMode } = useContext(AppContext);  
   const styles = isDarkMode ? darkStyles : lightStyles;
 
     return (

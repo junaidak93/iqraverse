@@ -5,7 +5,7 @@ import * as parahService from '@/services/parah-service';
 import { Parah } from '@/models/parah';
 import QuranCard from '../../components/quran-card';
 import { useFonts } from '@/hooks/use-fonts';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 import SearchBox from '@/components/searchbox';
 
 export default function ParahList() {
@@ -14,7 +14,7 @@ export default function ParahList() {
   const [parahs, setParahs] = useState<Parah[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  const { isDarkMode } = useContext(ThemeContext);  
+  const { isDarkMode } = useContext(AppContext);  
   const styles = isDarkMode ? darkStyles : lightStyles;
 
   useEffect(() => {

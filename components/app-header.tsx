@@ -1,71 +1,68 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeContext } from '@/providers/contexts';
+import { AppContext } from '@/providers/contexts';
 
 interface AppHeaderProps {
   title: string;
   showBack?: boolean;
+  showAsMainTitle?: boolean;
+  showSettings?: boolean;
+  showThemeToggle? : boolean;
 }
 
-export default function AppHeader({ title, showBack = false }: AppHeaderProps) {
+export default function AppHeader({ title, showBack = false, showAsMainTitle = false, showSettings = true, showThemeToggle = true }: AppHeaderProps) {
   const router = useRouter();
 
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const { isDarkMode, toggleDarkMode } = useContext(AppContext);
 
   const styles = getStyles(isDarkMode);
 
-  const blurhash =
-  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-
+  if (Platform.OS === 'android') {
+    styles.title = styles.mainTitle;
+  }
 
   return (
     <View style={styles.container}>
-      {showBack ? (
+      {showBack && (
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <Ionicons
             name="chevron-back"
-            size={26}
+            size={25}
             color={isDarkMode ? '#fff' : '#111'}
           />
         </TouchableOpacity>
-      ) : (
-        
-        <View style={styles.placeholder}>
-          <Image
-            source={require('./../assets/images/icon.png')}
-            placeholder={blurhash}
-            contentFit="fill"
-            
-            transition={1000}
-            style={{
-              // width: 28,
-              // height: 28,
-              margin: 5,
-              borderRadius: 6,
-
-              flex: 1,
-              width: 55
-              //backgroundColor: '#0553',
-            }}
-          />
-        </View>
       )}
 
-      <Text style={styles.title}>{title}</Text>
+      {showAsMainTitle ? (
+        <Text style={styles.mainTitle}>{title}</Text>
+      ) : (
+        <Text style={styles.title}>{title}</Text>
+      )}
+      
 
-      <View style={styles.placeholder}>
-        <Ionicons
-          name={isDarkMode ? 'sunny' : 'moon'}
-          size={22}
-          color={isDarkMode ? '#fff' : '#111'}
-          onPress={() => toggleTheme()}
-        />
+      <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: 30, paddingRight: 15, marginTop: 8}}>
+        {showSettings && (
+          <Ionicons
+            name={'settings-outline'}
+            size={22}
+            color={isDarkMode ? '#fff' : '#111'}
+            onPress={() => router.navigate('/settings')}
+          />
+        )}
+
+        {showThemeToggle && (
+          <Ionicons
+            name={isDarkMode ? 'sunny' : 'moon'}
+            size={22}
+            color={isDarkMode ? '#fff' : '#111'}
+            onPress={() => toggleDarkMode()}
+          />
+        )}
       </View>
     </View>
   );
@@ -86,20 +83,30 @@ const getStyles = (isDark: boolean) =>
     },
 
     backButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 25,
+      height: 25,
+      borderRadius: 0,
       justifyContent: 'center',
       alignItems: 'center',
+      marginTop: 8,
     },
 
     placeholder: {
-      width: 40,
+      width: 0,
     },
 
     title: {
-      fontSize: 20,
-      fontWeight: '600',
+      fontSize: 18,
+      fontWeight: 'bold',
+      alignSelf: 'center',
+      color: isDark ? '#fff' : '#111827',
+    },
+
+    mainTitle: {
+      fontSize: 18,
+      marginTop: 8,
+      fontWeight: 'bold',
+      alignSelf: 'center',
       color: isDark ? '#fff' : '#111827',
     },
   });
