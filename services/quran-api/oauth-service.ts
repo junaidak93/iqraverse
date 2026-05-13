@@ -1,7 +1,8 @@
 import { PostAsync } from '@/helper/fetcher/fetcher';
 import { Auth } from '@/models/auth';
+import Constants from 'expo-constants';
 
-const env = process.env;
+const env = Constants.expoConfig?.extra || {};
 
 const URL = `${env.EXPO_PUBLIC_QURAN_API_OAUTH_BASE_URL}/token`;
 
