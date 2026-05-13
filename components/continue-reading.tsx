@@ -62,7 +62,7 @@ export default function ContinueReadingButton({ lastRead }: { lastRead: LastRead
 
       <Link 
         key={text} 
-        href={{ pathname: "/ayahs", params: { parah_id: parahId, surah_id: surahId, ayah_id: ayahId } }} 
+        href={{ pathname: "/ayahs", params: { isFromLastRead: "true" } }} 
         style={StyleSheet.absoluteFillObject } 
       />
     </TouchableOpacity>

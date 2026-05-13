@@ -22,7 +22,7 @@ import { getAyahKey, getAyahDisplayKey } from '@/helper/key-helper';
 export default function AyahList() {
     useFonts();
 
-    const { isDarkMode, updateLastRead, reciterId, autoPlayNextAyah } = useContext(AppContext);
+    const { isDarkMode, lastRead, updateLastRead, reciterId, autoPlayNextAyah } = useContext(AppContext);
     const styles = isDarkMode ? darkStyles : lightStyles;
 
     const db = useSQLiteContext();
@@ -36,9 +36,17 @@ export default function AyahList() {
     const childRefs = useRef<Record<string, AudioPlayerRef | null>>({});
 
     const params = useLocalSearchParams();
-    const surah_id : number = params.surah_id ? +params.surah_id : 0;
-    const parah_id : number = params.parah_id ? +params.parah_id : 0;
-    const ayah_id : number = params.ayah_id ? +params.ayah_id : 0;
+    let surah_id : number = params.surah_id ? +params.surah_id : 0;
+    let parah_id : number = params.parah_id ? +params.parah_id : 0;
+    let ayah_id : number = params.ayah_id ? +params.ayah_id : 0;
+
+    const isFromLastRead: boolean = params.isFromLastRead ? params.isFromLastRead.toString() === 'true' : false;
+
+    if (isFromLastRead && lastRead) {
+        parah_id = lastRead.parah_id ? +lastRead.parah_id : 0;
+        surah_id = +lastRead.surah_id;
+        ayah_id = +lastRead.ayah_id;
+    }
 
     useEffect(() => {
       async function fetchData() {
@@ -195,7 +203,7 @@ export default function AyahList() {
             }}
             placeholder="Go to Ayah"
             activeColor={styles.dropdownActiveStyle.color}
-            onChange={(item) => { setActiveAyahOption(item); scrollToAyah(item); }}
+            onChange={(item) => { onAyahSelected(item.value); }}
             style={styles.dropdown}
             placeholderStyle={styles.dropdownTextStyle}
             selectedTextStyle={styles.dropdownSelectedStyle}
