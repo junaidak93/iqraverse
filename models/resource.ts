@@ -1,5 +1,3 @@
-import { HTMLSource } from "react-native-render-html";
-
 export interface Resource {
     id: number;
     name: string;

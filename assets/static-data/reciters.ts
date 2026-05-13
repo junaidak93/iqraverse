@@ -70,5 +70,11 @@ export default [
       reciter_name: "Mohamed al-Tablawi",
       style: null,
       image: require('@/assets/images/reciters/11.jpg'),
+    },
+    {
+      id: 13,
+      reciter_name: "Yasser Ad-Dussary",
+      style: null,
+      image: require('@/assets/images/reciters/13.jpg'),
     }
 ];

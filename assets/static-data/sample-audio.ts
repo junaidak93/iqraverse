@@ -13,7 +13,8 @@ const sampleAudio = [
 	{ id: 9, url: "https://verses.quran.com/Minshawi/Murattal/mp3/001001.mp3" },
 	{ id: 10, url: "https://verses.quran.com/Shuraym/mp3/001001.mp3" },
 	{ id: 11, url: "https://mirrors.quranicaudio.com/everyayah/Mohammad_al_Tablaway_128kbps/001001.mp3" },
-	{ id: 12, url: "https://mirrors.quranicaudio.com/everyayah/Husary_Muallim_128kbps/001001.mp3" }
+	{ id: 12, url: "https://mirrors.quranicaudio.com/everyayah/Husary_Muallim_128kbps/001001.mp3" },
+	{ id: 13, url: "https://everyayah.com/data/Yasser_Ad-Dussary_128kbps/001001.mp3" }
 ];
 
 export const getAyahAudio = (ayah: Ayah, resourceId: number) => {

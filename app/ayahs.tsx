@@ -264,14 +264,14 @@ export default function AyahList() {
                             </View>
                           </Pressable>
 
-                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahDisplayKey(item), action: 'Translations' } }} >
+                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahKey(item), action: 'Translations' } }} >
                             <View>
                               <MaterialIcons name="language" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                               <Text style={{...styles.tab, marginTop: 10}}>Translations</Text>
                             </View>
                           </Link>
 
-                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahDisplayKey(item), action: 'Tafsirs' } }} >
+                          <Link style={{ marginLeft: 5 }} href={{ pathname: '/details', params: { ayahKey: getAyahKey(item), action: 'Tafsirs' } }} >
                               <View>
                                 <MaterialIcons name="menu-book" size={32} style={{ alignSelf: 'center' }} color="#1E7F5C" />
                                 <Text style={{...styles.tab, marginTop: 10}}>Tafsirs</Text>

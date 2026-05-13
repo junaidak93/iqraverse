@@ -5,8 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Switch,
-  useColorScheme,
-  Image,
   StatusBar,
 } from 'react-native';
 import AppHeader from '@/components/app-header';
@@ -14,6 +12,10 @@ import { Ionicons } from '@expo/vector-icons';
 import reciters from '@/assets/static-data/reciters';
 import { Dropdown } from 'react-native-element-dropdown';
 import { AppContext } from '@/providers/contexts';
+import { Image } from 'expo-image';
+
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 export default function SettingsScreen() {
   const { 
@@ -34,6 +36,8 @@ export default function SettingsScreen() {
             <Image
                 source={item.image}
                 style={styles.avatar}
+                placeholder={blurhash}
+                contentFit="cover"
             />
             
             <View style={styles.dropdownText}>
@@ -92,6 +96,8 @@ return (
                     <Image
                         source={selected.image}
                         style={styles.avatar}
+                        placeholder={blurhash}
+                        contentFit="cover"
                     />
                 ) : null;
             }}
