@@ -29,10 +29,6 @@
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false
     },
-    "androidNavigationBar": {
-      "visible": "always",
-      "backgroundColor": "#00000000"
-    },
     "web": {
       "output": "static",
       "favicon": "./assets/images/icon.png"
