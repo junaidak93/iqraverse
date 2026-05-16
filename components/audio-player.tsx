@@ -67,6 +67,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, Props>(({ audioSource, onC
         },
         pause: () => {
             if (sound) {
+                bismillah.pause();
                 sound.pause();
             }
         }
