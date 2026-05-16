@@ -10,6 +10,7 @@ export default {
     scheme: "iqraverse",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
+    assetBundlePatterns: ["assets/**/*"],
     splash: {
         image: "./assets/images/splash-icon.png",
         resizeMode: "contain"
@@ -79,8 +80,7 @@ export default {
 
         API_BASE_URL: env.API_BASE_URL,
         LOGIN_ENDPOINT: env.LOGIN_ENDPOINT,
-        APPLICATION_ID: env.APPLICATION_ID,
-        SALT: env.SALT
+        APPLICATION_ID: env.APPLICATION_ID
     },
     owner: "junaidak93",
     runtimeVersion: {

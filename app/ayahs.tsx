@@ -100,10 +100,12 @@ export default function AyahList() {
       const _activeAyah = ayahs.find(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
 
       if (index !== -1) {
-        listRef.current?.scrollToIndex({
-          index,
-          animated: true,
-        });
+        setTimeout(() => {
+          listRef.current?.scrollToIndex({
+            index,
+            animated: true,
+          });
+        }, 300);
 
         if (activeAyah !== _activeAyah) {
           setActiveAyah(_activeAyah);
