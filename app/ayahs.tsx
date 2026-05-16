@@ -116,11 +116,9 @@ export default function AyahList() {
     };
 
     const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ';
+    const BISMILLAH2 = 'بِّسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ';
 
-    const isFirstAyah = (ayah: Ayah) => ayah.ayah_id === 1 && (
-        ayah.ar_text.startsWith(BISMILLAH) ||
-        isSurahTauba(ayah) // exclude Surah Tawbah
-    );
+    const isFirstAyah = (ayah: Ayah) => ayah.ayah_id === 1 && !isSurahTauba(ayah);
 
     const isAyahBismillah = (ayah: Ayah) => ayah.ar_text == BISMILLAH;
 
@@ -140,6 +138,13 @@ export default function AyahList() {
 
         return (<></>);
     };
+
+    const getAyahDisplayText = (ayah: Ayah) => {
+      if (isFirstAyah(ayah)) {
+        return ayah.ar_text.replaceAll(BISMILLAH, '').replaceAll(BISMILLAH2, '').trim();
+      }
+      return ayah.ar_text;
+    }
 
     const onAyahSelected = (ayah : Ayah) => {
       setActiveAyah(ayah);
@@ -245,7 +250,7 @@ export default function AyahList() {
                         <Text style={{...styles.tab, fontSize: 18}}>{getAyahDisplayKey(item)}</Text>
 
                         {/* Arabic */}
-                        <Text style={styles.arabic}>{item.ar_text.replaceAll(BISMILLAH, '').trim()}</Text>
+                        <Text style={styles.arabic}>{getAyahDisplayText(item)}</Text>
 
                         {/* Arabic */}
                         <Text style={{...styles.tab, marginTop: 10}}>Translation:</Text>
