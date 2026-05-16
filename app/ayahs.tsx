@@ -166,7 +166,7 @@ export default function AyahList() {
 
     const play = (ayah: Ayah) => {
       if (activeAyah) {
-        childRefs?.current[getAyahKey(ayah)]?.pause();
+        childRefs?.current[getAyahKey(activeAyah)]?.pause();
       }
 
       onAyahSelected(ayah);
