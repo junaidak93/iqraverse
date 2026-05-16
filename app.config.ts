@@ -28,7 +28,7 @@ export default {
         package: "app.iqraverse",
         edgeToEdgeEnabled: true,
         softwareKeyboardLayoutMode: "resize",
-        predictiveBackGestureEnabled: true,
+        predictiveBackGestureEnabled: false,
         permissions: [
             "android.permission.RECORD_AUDIO",
             "android.permission.MODIFY_AUDIO_SETTINGS",

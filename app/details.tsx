@@ -119,7 +119,7 @@ export default function Details() {
                                 baseStyle={{...styles.translation, marginBottom: 20 }}
                                 contentWidth={windowWidth}
                                 source={{
-                                    html: item.content || '<p>No content available</p>'
+                                    html: item.content || '<p>Loading...</p>'
                                 }}
                             />
                         </ExpandableCard>
