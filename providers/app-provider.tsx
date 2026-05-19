@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { AppContext } from "./contexts";
 import { useColorScheme } from "react-native";
 import * as Preferences from '../helper/preferences';
-import { LastRead } from "@/models/last-read";
+import { ReadState } from "@/models/read-state";
 
 export const AppProvider = ({ children } : { children: any }) => {
   const systemTheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(systemTheme === "dark");
-  const [lastRead, setLastRead] = useState<LastRead | null>(null);
+  const [lastRead, setLastRead] = useState<ReadState | null>(null);
   const [reciterId, setReciterId] = useState(10);
   const [autoPlayNextAyah, setAutoPlayNextAyah] = useState(true);
+  const [bookmarks, setBookmarks] = useState<ReadState[]>([]);
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
 
   const toggleDarkMode = () => {
@@ -34,7 +35,7 @@ export const AppProvider = ({ children } : { children: any }) => {
     Preferences.save(Preferences.keys.theme, theme);
   }
 
-  const updateLastRead = (lastRead: LastRead) => {
+  const updateLastRead = (lastRead: ReadState) => {
     Preferences.save(Preferences.keys.lastRead, JSON.stringify(lastRead));
     setLastRead(lastRead);
   }
@@ -48,6 +49,17 @@ export const AppProvider = ({ children } : { children: any }) => {
     Preferences.save(Preferences.keys.autoPlayNextAyah, value);
     setAutoPlayNextAyah(value);
   }
+
+  const addBookmark = (ayah: ReadState) => {
+    Preferences.save(Preferences.keys.bookmarks, JSON.stringify([...bookmarks, ayah]));
+    setBookmarks([...bookmarks, ayah]);
+  };
+
+  const removeBookmark = (ayah: ReadState) => {
+    const updatedBookmarks = bookmarks.filter((b) => b.ayah_id !== ayah.ayah_id);
+    Preferences.save(Preferences.keys.bookmarks, JSON.stringify(updatedBookmarks));
+    setBookmarks(updatedBookmarks);
+  };
 
   useEffect(() => {
     async function updateValueFromPreferences() {
@@ -74,6 +86,12 @@ export const AppProvider = ({ children } : { children: any }) => {
         if (autoPlayNextAyah) {
             setAutoPlayNextAyah(autoPlayNextAyah === "true");
         }
+
+        const bookmarksStr = await Preferences.getValueFor(Preferences.keys.bookmarks);
+
+        if (bookmarksStr) {
+            setBookmarks(JSON.parse(bookmarksStr));
+        }
     }
 
     updateValueFromPreferences();
@@ -89,7 +107,10 @@ export const AppProvider = ({ children } : { children: any }) => {
     reciterId,
     updateReciterId,
     autoPlayNextAyah,
-    updateAutoPlayNextAyah
+    updateAutoPlayNextAyah,
+    bookmarks,
+    addBookmark,
+    removeBookmark
   };
 
   return (

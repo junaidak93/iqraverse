@@ -5,20 +5,21 @@ export default {
     name: "IqraVerse",
     slug: "iqraverse",
     version: "1.0.0",
-    orientation: "portrait",
+    orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "iqraverse",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     assetBundlePatterns: ["assets/**/*"],
-    splash: {
-        image: "./assets/images/splash-icon.png",
-        resizeMode: "contain"
-    },
+    // splash: {
+    //     image: "./assets/images/splash-icon.png",
+    //     resizeMode: "contain"
+    // },
     androidStatusBar: {
         translucent: true
     },
     ios: {
+        bundleIdentifier: "app.iqraverse",
         supportsTablet: true
     },
     android: {
@@ -47,10 +48,11 @@ export default {
         "expo-splash-screen",
         {
             image: "./assets/images/splash-icon.png",
-            imageWidth: 200,
+            imageWidth: 1242,
             resizeMode: "contain",
             backgroundColor: "#F7F9F8",
             dark: {
+                image: "./assets/images/splash-icon.png",
                 backgroundColor: "#0f1511"
             }
         }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LastRead } from '@/models/last-read';
+import { LastRead } from '@/models/read-state';
 import { getSurahByIndex } from '@/services/surah-service';
 import { getParahByIndex } from '@/services/parah-service';
 import { useSQLiteContext } from 'expo-sqlite';

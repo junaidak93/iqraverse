@@ -12,17 +12,28 @@ import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { Dropdown } from 'react-native-element-dropdown';
 import { AppContext } from '@/providers/contexts';
 import AyahOption from '@/models/ayahOption';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import AppHeader from '@/components/app-header';
 import { AudioPlayer, AudioPlayerRef } from '@/components/audio-player';
 import { getAyahAudio } from '@/assets/static-data/sample-audio';
 import { getAyahKey, getAyahDisplayKey } from '@/helper/key-helper';
+import { darkStyles, lightStyles } from '@/styles/ayah';
 
 
 export default function AyahList() {
     useFonts();
 
-    const { isDarkMode, lastRead, updateLastRead, reciterId, autoPlayNextAyah } = useContext(AppContext);
+    const { 
+      isDarkMode, 
+      lastRead, 
+      updateLastRead, 
+      reciterId, 
+      autoPlayNextAyah,
+      bookmarks,
+      addBookmark,
+      removeBookmark
+    } = useContext(AppContext);
+
     const styles = isDarkMode ? darkStyles : lightStyles;
 
     const db = useSQLiteContext();
@@ -66,6 +77,10 @@ export default function AyahList() {
 
             let surahList = await surahService.getSurahsByIndices(db, surahIds);
             setSurahs(surahList);
+
+            ayahList.forEach(b => {
+              b.isBookmarked = bookmarks?.find(x => x.ayah_id === b.ayah_id && x.surah_id === b.surah_id) ? true : false;
+            });
         }
 
         setAyahs(ayahList);
@@ -74,15 +89,26 @@ export default function AyahList() {
       fetchData();
     }, []);
 
-
     useEffect(() => {
       if (ayahs && ayahs.length > 0 && ayah_id && surah_id) {
         const ayah = ayahs.find(x => x.ayah_id === ayah_id && x.surah_id === surah_id);
         if (ayah) {
-          onAyahSelected(ayah);
+          setTimeout(() => {
+            onAyahSelected(ayah);
+          }, 300);
         }
       }
     }, [ayahs]);
+
+    const toggleBookmark = (ayah: Ayah) => {
+      if (ayah.isBookmarked) {
+        ayah.isBookmarked = false;
+        removeBookmark({ parah_id: ayah.parah_id, surah_id: ayah.surah_id, ayah_id: ayah.ayah_id });
+      } else {
+        ayah.isBookmarked = true;
+        addBookmark(ayah);
+      }
+    };
 
     const ayahOptions = useMemo(() => {
       return ayahs?.map((a) => ({
@@ -100,12 +126,10 @@ export default function AyahList() {
       const _activeAyah = ayahs.find(a => a.ayah_id === item.value.ayah_id && a.surah_id === item.value.surah_id);
 
       if (index !== -1) {
-        setTimeout(() => {
-          listRef.current?.scrollToIndex({
-            index,
-            animated: true,
-          });
-        }, 300);
+        listRef.current?.scrollToIndex({
+          index,
+          animated: true,
+        });
 
         if (activeAyah !== _activeAyah) {
           setActiveAyah(_activeAyah);
@@ -248,16 +272,62 @@ export default function AyahList() {
                   {!isAyahBismillah(item) && (<View style={[styles.ayahContainer, item === activeAyah && { backgroundColor: '#1E7F5C22' }]}>
 
                       <Pressable onPress={() => onAyahSelected(item)}>
-                        {/* Ayah Number */}
-                        <Text style={{...styles.tab, fontSize: 18}}>{getAyahDisplayKey(item)}</Text>
+                        {/* Header Row */}
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: 10,
+                            }}
+                        >
+                            {/* Ayah Number */}
+                            <Text style={{ ...styles.tab, fontSize: 18 }}>
+                                {getAyahDisplayKey(item)}
+                            </Text>
+
+                            {/* Bookmark Button */}
+                            <Pressable
+                                onPress={() => toggleBookmark(item)}
+                                hitSlop={10}
+                            >
+                                <Ionicons
+                                    name={
+                                        item.isBookmarked
+                                            ? 'bookmark'
+                                            : 'bookmark-outline'
+                                    }
+                                    size={24}
+                                    color={styles.tab.color}
+                                />
+                            </Pressable>
+                        </View>
 
                         {/* Arabic */}
-                        <Text style={styles.arabic}>{getAyahDisplayText(item)}</Text>
+                        <Text style={styles.arabic}>
+                            {getAyahDisplayText(item)}
+                        </Text>
 
-                        {/* Arabic */}
-                        <Text style={{...styles.tab, marginTop: 10}}>Translation:</Text>
-                        <Text style={{...styles.translation, paddingBottom: 10}}>{item.en_meaning}</Text>
-                      </Pressable>
+                        {/* Translation Label */}
+                        <Text
+                            style={{
+                                ...styles.tab,
+                                marginTop: 10,
+                            }}
+                        >
+                            Translation:
+                        </Text>
+
+                        {/* Translation */}
+                        <Text
+                            style={{
+                                ...styles.translation,
+                                paddingBottom: 10,
+                            }}
+                        >
+                            {item.en_meaning}
+                        </Text>
+                    </Pressable>
 
                       {/* Tabs */}
                       <View style={styles.tabs}>
@@ -316,204 +386,3 @@ export default function AyahList() {
         </View>
     );
 }
-
-const darkStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0f1511',
-  },
-
-  header: {
-    padding: 16,
-  },
-
-  bismillah: {
-    fontFamily: 'Uthmani',
-    textAlign: 'center',
-    fontSize: 24,
-    marginVertical: 12,
-    color: '#1E7F5C',
-  },
-
-  surahHeader: {
-    alignItems: 'center',
-    marginVertical: 0,
-  },
-
-  surahName: {
-    fontFamily: 'Uthmani',
-    color: '#fff',
-    fontSize: 50,
-    fontWeight: '600',
-  },
-
-  ayahContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderColor: '#222',
-  },
-
-  separator: {
-    height: 1, 
-    marginVertical: 10,
-    backgroundColor: '#222',
-  },
-
-  arabic: {
-    fontFamily: 'Uthmani',
-    color: '#fff',
-    fontSize: 28,
-    textAlign: 'right',
-    lineHeight: 48,
-    paddingTop: 15
-  },
-
-  translation: {
-    color: '#ccc',
-    marginTop: 12,
-    fontSize: 16,
-  },
-
-  tabs: {
-    flexDirection: 'row',
-    marginTop: 20,
-    gap: 16,
-  },
-
-  tab: {
-    color: '#888',
-    fontSize: 14,
-  },
-  dropdown: {
-    margin: 12,
-    marginTop: 20,
-    backgroundColor: '#1F2A24',
-    borderRadius: 10,
-    padding: 10,
-    borderColor: '#000',
-    borderWidth: 0.5,
-    width: '40%',
-    alignSelf: 'center'
-  },
-  dropdownActiveStyle:{
-    color: '#183a28'
-  },
-  dropdownTextStyle: {
-    color: '#aaa'
-  },
-  inputSearchStyle: {
-    color: '#eee4e4'
-  },
-  dropdownSelectedStyle: {
-    color: '#fff'
-  },
-  dropdownContainerStyle: {
-    backgroundColor: '#1F2A24',
-    borderColor: '#000',
-    borderWidth: 0.5,
-  },
-  dropdownItemContainerStyle: {
-    backgroundColor: '#1F2A24'
-  }
-});
-
-const lightStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F7F9F8', // soft off-white (better than pure white)
-  },
-
-  header: {
-    padding: 16,
-  },
-
-  bismillah: {
-    fontFamily: 'Uthmani',
-    textAlign: 'center',
-    fontSize: 24,
-    marginVertical: 12,
-    color: '#1E7F5C', // keep brand color
-  },
-
-  surahHeader: {
-    alignItems: 'center',
-    marginVertical: 0,
-  },
-
-  surahName: {
-    fontFamily: 'Uthmani',
-    color: '#0F1511', // dark text instead of black
-    fontSize: 50,
-    fontWeight: '600',
-  },
-
-  ayahContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderColor: '#E5E7EB', // subtle divider
-  },
-
-  separator: {
-    height: 1, 
-    marginVertical: 10,
-    backgroundColor: '#E5E7EB',
-  },
-
-  arabic: {
-    fontFamily: 'Uthmani',
-    color: '#111827', // deep gray (easier on eyes)
-    fontSize: 28,
-    textAlign: 'right',
-    lineHeight: 48,
-    paddingTop: 15,
-  },
-
-  translation: {
-    color: '#4B5563', // softer gray
-    marginTop: 12,
-    fontSize: 16,
-  },
-
-  tabs: {
-    flexDirection: 'row',
-    marginTop: 20,
-    gap: 16,
-  },
-
-  tab: {
-    color: '#6B7280',
-    fontSize: 14,
-  },
-
-  dropdown: {
-    margin: 12,
-    marginTop: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    borderColor: '#E0E0E0',
-    borderWidth: 1,
-    width: '40%',
-    alignSelf: 'center'
-  },
-  dropdownActiveStyle:{
-    color: '#c8f1db'
-  },
-  dropdownTextStyle: {
-    color: '#666'
-  },
-  inputSearchStyle: {
-    color: '#4c4848'
-  },
-  dropdownSelectedStyle: {
-    color: '#000'
-  },
-  dropdownContainerStyle: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E0E0E0',
-    borderWidth: 1,
-  },
-  dropdownItemContainerStyle: {
-    backgroundColor: '#FFFFFF'
-  }
-});

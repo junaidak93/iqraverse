@@ -1,4 +1,4 @@
-import { LastRead } from "@/models/last-read";
+import { ReadState } from "@/models/read-state";
 import { createContext } from "react";
 
 interface AppSettings {
@@ -8,14 +8,18 @@ interface AppSettings {
     theme: 'system' | 'light' | 'dark',
     updateTheme: (theme: 'system' | 'light' | 'dark') => void,
 
-    lastRead: LastRead | null,
-    updateLastRead: ((lastRead: LastRead) => void),
+    lastRead: ReadState | null,
+    updateLastRead: ((lastRead: ReadState) => void),
 
     reciterId: number;
     updateReciterId: (reciterId: number) => void;
 
     autoPlayNextAyah?: boolean;
     updateAutoPlayNextAyah: (value: boolean) => void;
+
+    bookmarks?: ReadState[];
+    addBookmark: (ayah: ReadState) => void;
+    removeBookmark: (ayah: ReadState) => void;
 };
 
 export const AppContext = createContext<AppSettings>({
@@ -36,5 +40,9 @@ export const AppContext = createContext<AppSettings>({
     updateReciterId: () => {},
 
     autoPlayNextAyah: true,
-    updateAutoPlayNextAyah: () => {}
+    updateAutoPlayNextAyah: () => {},
+
+    bookmarks: [],
+    addBookmark: () => {},
+    removeBookmark: () => {}
 });

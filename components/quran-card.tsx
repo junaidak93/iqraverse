@@ -8,7 +8,7 @@ type Props = {
   arName: string;
   enName: string;
   enMeaning: string;
-  type: 'parah' | 'surah';
+  type: 'parah' | 'surah' | 'ayah';
   verses?: number;
   ruku?: number;
   parahRange?: string;

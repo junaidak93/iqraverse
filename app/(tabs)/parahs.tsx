@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as parahService from '@/services/parah-service';
 import { Parah } from '@/models/parah';
@@ -11,11 +11,18 @@ import SearchBox from '@/components/searchbox';
 export default function ParahList() {
   useFonts();
   const db = useSQLiteContext();
+  const { width } = useWindowDimensions();
+  const [numColumns, setNumColumns] = useState(Math.floor(width / 180));
   const [parahs, setParahs] = useState<Parah[]>([]);
   const [searchText, setSearchText] = useState('');
 
   const { isDarkMode } = useContext(AppContext);  
   const styles = isDarkMode ? darkStyles : lightStyles;
+
+  useEffect(() => {
+    const columns = Math.floor(width / 180);
+    setNumColumns(columns > 0 ? columns : 1);
+  }, [width]);
 
   useEffect(() => {
     async function fetchData() {
@@ -41,7 +48,8 @@ export default function ParahList() {
       <SearchBox value={searchText} onChange={setSearchText} />
 
       <FlatList
-        numColumns={2}
+        key={numColumns}
+        numColumns={numColumns}
         contentContainerStyle={{ alignSelf: 'flex-start' }}
         data={filteredParahs}
         keyExtractor={(item) => item.index.toString()}

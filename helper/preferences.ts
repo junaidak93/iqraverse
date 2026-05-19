@@ -13,4 +13,5 @@ export const keys = {
     theme: "theme",
     reciterId: "reciterId",
     autoPlayNextAyah: "autoPlayNextAyah",
+    bookmarks: "bookmarks"
 }
