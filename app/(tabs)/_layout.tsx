@@ -17,7 +17,6 @@ export default function TabsLayout() {
   const { 
     isDarkMode, 
     lastRead,
-    bookmarks,
   } = useContext(AppContext);
 
   return (

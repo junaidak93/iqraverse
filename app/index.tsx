@@ -3,7 +3,7 @@ import { Redirect } from "expo-router";
 import { useEffect, useState } from 'react';
 import { getTranslationResources } from "@/services/quran-api/translation-service";
 import { getTafsirResources } from "@/services/quran-api/tafsir-service";
-import { getAccessToken } from "@/services/quran-api/oauth-service";
+import { getAccessToken } from "@/services/quran-api/content-oauth-service";
 import Splash from "@/components/splash";
 
 // Keep the splash screen visible while we fetch resources

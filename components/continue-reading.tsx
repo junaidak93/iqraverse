@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LastRead } from '@/models/read-state';
+import { ReadState } from '@/models/read-state';
 import { getSurahByIndex } from '@/services/surah-service';
 import { getParahByIndex } from '@/services/parah-service';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getValueFor, keys } from '@/helper/preferences';
 import { Link } from 'expo-router';
 
-export default function ContinueReadingButton({ lastRead }: { lastRead: LastRead | null }) {
+export default function ContinueReadingButton({ lastRead }: { lastRead: ReadState | null }) {
   const [text, setText] = useState<string | undefined>(undefined);
   const [parahId, setParahId] = useState<number | null>(null);
   const [surahId, setSurahId] = useState<number | null>(null);

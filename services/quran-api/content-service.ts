@@ -1,5 +1,5 @@
 import { getCommonHeaders } from './base-service';
-import { getAccessToken } from "./oauth-service";
+import { getAccessToken } from "./content-oauth-service";
 
 export const getHeaders = async() => {
     const headers = await getCommonHeaders();

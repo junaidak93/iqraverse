@@ -32,7 +32,7 @@ export const darkStyles = StyleSheet.create({
 
   ayahContainer: {
     padding: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderColor: '#222',
   },
 
@@ -144,7 +144,7 @@ export const lightStyles = StyleSheet.create({
 
   ayahContainer: {
     padding: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderColor: '#E5E7EB', // subtle divider
   },
 

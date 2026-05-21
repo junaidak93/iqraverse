@@ -5,4 +5,5 @@ export interface Ayah {
     ar_text: string;
     en_meaning: string;
     isBookmarked: boolean;
+    id?: string;
 }

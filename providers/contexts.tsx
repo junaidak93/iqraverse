@@ -1,4 +1,6 @@
+import { Auth } from "@/models/auth";
 import { ReadState } from "@/models/read-state";
+import { UserProfile } from "@/models/user-profile";
 import { createContext } from "react";
 
 interface AppSettings {
@@ -20,6 +22,15 @@ interface AppSettings {
     bookmarks?: ReadState[];
     addBookmark: (ayah: ReadState) => void;
     removeBookmark: (ayah: ReadState) => void;
+    updateBookmarks: (bookmarks: ReadState[]) => void;
+
+    profile?: UserProfile | null;
+    updateProfile: (profile: UserProfile) => void;
+    clearProfile: () => void;
+
+    userToken?: Auth | null;
+    updateUserToken: (token: Auth) => void;
+    clearUserToken: () => void;
 };
 
 export const AppContext = createContext<AppSettings>({
@@ -44,5 +55,24 @@ export const AppContext = createContext<AppSettings>({
 
     bookmarks: [],
     addBookmark: () => {},
-    removeBookmark: () => {}
+    removeBookmark: () => {},
+    updateBookmarks(bookmarks) {
+        
+    },
+
+    profile: null,
+    updateProfile(profile) {
+        
+    },
+    clearProfile() {
+        this.profile = null
+    },
+
+    userToken: null,
+    updateUserToken(token: Auth) {
+
+    },
+    clearUserToken() {
+
+    }
 });

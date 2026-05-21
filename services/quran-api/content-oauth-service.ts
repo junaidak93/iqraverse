@@ -1,23 +1,21 @@
 import { GetAsync, PostAsync } from '@/helper/fetcher/fetcher';
 import { Auth } from '@/models/auth';
-import { getCommonHeaders, LOGIN_URL } from './base-service';
+import { getCommonHeaders, CONTENT_LOGIN_URL } from './base-service';
 
 
 export async function getAccessToken() : Promise<Auth | null> {
-    if (Cache.auth && isTokenValid(Cache.timeSaved, Cache.auth.expires_in)) {
+    if (Cache.auth && isTokenValid(Cache.timeSaved, Cache.auth.expires_in ?? 0)) {
       return Cache.auth;
     }
 
     const headers = await getCommonHeaders();
 
     try {
-      const response = await GetAsync(LOGIN_URL, headers);
+      const response = await GetAsync(CONTENT_LOGIN_URL, headers);
 
       Cache.auth = response.data as Auth;
       Cache.timeSaved = Date.now();
-  } catch (error) {
-      console.error("Error fetching access token:", error);
-      
+  } catch (error) {      
       if (!Cache.auth) {
         throw error;
       }

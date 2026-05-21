@@ -295,7 +295,7 @@ const darkStyles = StyleSheet.create({
     alignItems: 'flex-end',
     marginTop: 16,
     paddingTop: 10,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderColor: '#1F2A24', // subtle divider
   },
 

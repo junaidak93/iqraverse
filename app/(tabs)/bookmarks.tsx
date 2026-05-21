@@ -5,12 +5,13 @@ import { AppContext } from "@/providers/contexts";
 import { useSQLiteContext } from "expo-sqlite";
 import { useContext, useEffect, useState, useMemo } from "react";
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { FlatList, StyleSheet, useWindowDimensions, View, Text, Pressable } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View, Text, Pressable, TouchableOpacity } from 'react-native';
 import { Ayah } from "@/models/ayah";
 import { getAyahKey, getAyahDisplayKey } from '@/helper/key-helper';
 import { darkStyles, lightStyles } from '@/styles/ayah';
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import SearchBox from '@/components/searchbox';
+import { ReadState } from "@/models/read-state";
 
 export default function Bookmarks() {
     const { 
@@ -30,8 +31,14 @@ export default function Bookmarks() {
  
     const styles = isDarkMode ? darkStyles : lightStyles;
 
-    const getAyah = async (bookmark: { surah_id: number; ayah_id: number }) => {
-        return await ayahService.getAyahById(db, bookmark.surah_id, bookmark.ayah_id);return await ayahService.getAyahById(db, bookmark.surah_id, bookmark.ayah_id);
+    const getAyah = async (bookmark: ReadState) => {
+        const ayah = await ayahService.getAyahById(db, bookmark.surah_id, bookmark.ayah_id);
+
+        if (ayah) {
+            ayah.id = bookmark.id;
+        }
+
+        return ayah;
     }
 
     useEffect(() => {
@@ -51,7 +58,7 @@ export default function Bookmarks() {
     const toggleBookmark = (ayah: Ayah) => {
         if (ayah.isBookmarked) {
             ayah.isBookmarked = false;
-            removeBookmark({ parah_id: ayah.parah_id, surah_id: ayah.surah_id, ayah_id: ayah.ayah_id });
+            removeBookmark({ parah_id: ayah.parah_id, surah_id: ayah.surah_id, ayah_id: ayah.ayah_id, id: ayah.id });
         } else {
             ayah.isBookmarked = true;
             addBookmark(ayah);
@@ -84,6 +91,10 @@ export default function Bookmarks() {
         return ayah.ar_text;
     }
 
+    const goToAyah = (ayah: Ayah) => {
+        router.navigate({ pathname: "../ayahs", params: { surah_id: ayah.surah_id, ayah_id: ayah.ayah_id } });
+    }
+
     return (
         <View style={{ flex: 1, backgroundColor: isDarkMode ? '#0f1511' : '#f0e9e9' }}>
             <SearchBox value={searchText} onChange={setSearchText} />
@@ -93,7 +104,7 @@ export default function Bookmarks() {
                 data={filteredAyahs}
                 keyExtractor={(item) => `${item.surah_id} : ${item.ayah_id}`}
                 renderItem={({ item }) =>
-                    <Link 
+                    <View 
                         style={{ 
                             ...styles.card, 
                             marginLeft: 15, 
@@ -101,15 +112,15 @@ export default function Bookmarks() {
                             marginTop: 15, 
                             width: width - 30
                         }} 
-                        href={{ pathname: "../ayahs", params: { surah_id: item.surah_id, ayah_id: item.ayah_id } }}>
-                        <View style={styles.ayahContainer}>
+                    >
+                        <TouchableOpacity style={styles.ayahContainer} onPress={() => goToAyah(item)}>
                             {/* Header Row */}
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    marginBottom: 10,
+                                    marginBottom: 0,
                                 }}
                             >
                                 {/* Ayah Number */}
@@ -159,8 +170,15 @@ export default function Bookmarks() {
                                 {item.en_meaning}
                             </Text>
 
-                        </View>
-                    </Link>
+                        </TouchableOpacity>
+
+                        {/* <Link 
+                            key={`${item.surah_id} : ${item.ayah_id}`} 
+                            href={{ pathname: "../ayahs", params: { surah_id: item.surah_id, ayah_id: item.ayah_id } }}
+                            style={{
+                            ...StyleSheet.absoluteFillObject            
+                        }}></Link> */}
+                    </View>
                 } 
             />
         </View>

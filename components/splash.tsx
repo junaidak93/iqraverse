@@ -58,7 +58,7 @@ export default function SplashScreen() {
         ) : (
           <Image
             source={require(lightImageSource)}
-            style={{ width, height }}
+            style={{ width, height: height + 50 }}
             contentFit="cover"
           />
         )}

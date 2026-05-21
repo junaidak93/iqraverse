@@ -46,21 +46,21 @@ export default function AppHeader({ title, showBack = false, showAsMainTitle = f
       
 
       <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: 30, paddingRight: 15, marginTop: 8}}>
-        {showSettings && (
-          <Ionicons
-            name={'settings-outline'}
-            size={22}
-            color={isDarkMode ? '#fff' : '#111'}
-            onPress={() => router.navigate('/settings')}
-          />
-        )}
-
         {showThemeToggle && (
           <Ionicons
             name={isDarkMode ? 'sunny' : 'moon'}
             size={22}
             color={isDarkMode ? '#fff' : '#111'}
             onPress={() => toggleDarkMode()}
+          />
+        )}
+
+        {showSettings && (
+          <Ionicons
+            name={'settings-outline'}
+            size={22}
+            color={isDarkMode ? '#fff' : '#111'}
+            onPress={() => router.navigate('/settings')}
           />
         )}
       </View>

@@ -36,6 +36,22 @@ export default {
             "android.permission.MODIFY_AUDIO_SETTINGS",
             "android.permission.RECORD_AUDIO",
             "android.permission.MODIFY_AUDIO_SETTINGS"
+        ],
+        intentFilters: [
+            {
+                action: "VIEW",
+                autoVerify: true,
+                data: [
+                    {
+                        scheme: "iqraverse",
+                        host: "auth"
+                    }
+                ],
+                category: [
+                    "BROWSABLE",
+                    "DEFAULT"
+                ]
+            }
         ]
     },
     web: {
@@ -81,8 +97,15 @@ export default {
         },
 
         API_BASE_URL: env.API_BASE_URL,
-        LOGIN_ENDPOINT: env.LOGIN_ENDPOINT,
-        APPLICATION_ID: env.APPLICATION_ID
+        CONTENT_LOGIN_ENDPOINT: env.CONTENT_LOGIN_ENDPOINT,
+        USER_LOGIN_ENDPOINT: env.USER_LOGIN_ENDPOINT,
+        USER_PROFILE_ENDPOINT: env.USER_PROFILE_ENDPOINT,
+        DEEP_LINK: env.DEEP_LINK,
+        APPLICATION_ID: env.APPLICATION_ID,
+        QURAN_LOGOUT_URL: env.QURAN_LOGOUT_URL,
+        TOKEN_REFRESH_ENDPOINT: env.TOKEN_REFRESH_ENDPOINT,
+        BOOKMARKS_ENDPOINT: env.BOOKMARKS_ENDPOINT,
+        BOOKMARKS_SYNC_ENDPOINT: env.BOOKMARKS_SYNC_ENDPOINT
     },
     owner: "junaidak93",
     runtimeVersion: {

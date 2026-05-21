@@ -3,6 +3,9 @@ import { AppContext } from "./contexts";
 import { useColorScheme } from "react-native";
 import * as Preferences from '../helper/preferences';
 import { ReadState } from "@/models/read-state";
+import { UserProfile } from "@/models/user-profile";
+import { Auth } from "@/models/auth";
+import * as bookmarkService from "@/services/quran-api/bookmark-service";
 
 export const AppProvider = ({ children } : { children: any }) => {
   const systemTheme = useColorScheme();
@@ -11,6 +14,8 @@ export const AppProvider = ({ children } : { children: any }) => {
   const [reciterId, setReciterId] = useState(10);
   const [autoPlayNextAyah, setAutoPlayNextAyah] = useState(true);
   const [bookmarks, setBookmarks] = useState<ReadState[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [userToken, setUserToken] = useState<Auth | null>(null);
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
 
   const toggleDarkMode = () => {
@@ -51,15 +56,48 @@ export const AppProvider = ({ children } : { children: any }) => {
   }
 
   const addBookmark = (ayah: ReadState) => {
-    Preferences.save(Preferences.keys.bookmarks, JSON.stringify([...bookmarks, ayah]));
+    Preferences.saveUnsafe(Preferences.keys.bookmarks, JSON.stringify([...bookmarks, ayah]));
     setBookmarks([...bookmarks, ayah]);
+
+    if (userToken) {
+      bookmarkService.addBookmark(userToken as Auth, ayah.surah_id, ayah.ayah_id);
+    }
   };
 
   const removeBookmark = (ayah: ReadState) => {
     const updatedBookmarks = bookmarks.filter((b) => b.ayah_id !== ayah.ayah_id);
-    Preferences.save(Preferences.keys.bookmarks, JSON.stringify(updatedBookmarks));
+    Preferences.saveUnsafe(Preferences.keys.bookmarks, JSON.stringify(updatedBookmarks));
     setBookmarks(updatedBookmarks);
+
+    if (userToken && ayah.id) {
+      bookmarkService.removeBookmark(userToken as Auth, ayah.id);
+    }
   };
+
+  const updateBookmarks = (bookmarks: ReadState[]) => {
+    Preferences.saveUnsafe(Preferences.keys.bookmarks, JSON.stringify(bookmarks));
+    setBookmarks(bookmarks);
+  };
+
+  const updateProfile = (profile: UserProfile) => {
+    Preferences.save(Preferences.keys.profile, JSON.stringify(profile));
+    setProfile(profile);
+  }
+
+  const clearProfile = () => {
+    setProfile(null);
+    Preferences.remove(Preferences.keys.profile);
+  }
+
+  const updateUserToken = (token: Auth) => {
+    Preferences.save(Preferences.keys.user_token, JSON.stringify(token));
+    setUserToken(token);
+  }
+
+  const clearUserToken = () => {
+    setUserToken(null);
+    Preferences.remove(Preferences.keys.user_token);
+  }
 
   useEffect(() => {
     async function updateValueFromPreferences() {
@@ -87,10 +125,22 @@ export const AppProvider = ({ children } : { children: any }) => {
             setAutoPlayNextAyah(autoPlayNextAyah === "true");
         }
 
-        const bookmarksStr = await Preferences.getValueFor(Preferences.keys.bookmarks);
+        const bookmarksStr = await Preferences.getValueForUnsafe(Preferences.keys.bookmarks);
 
         if (bookmarksStr) {
             setBookmarks(JSON.parse(bookmarksStr));
+        }
+
+        const profileStr = await Preferences.getValueFor(Preferences.keys.profile);
+
+        if (profileStr) {
+            setProfile(JSON.parse(profileStr));
+        }
+
+        const userTokenStr = await Preferences.getValueFor(Preferences.keys.user_token);
+
+        if (userTokenStr) {
+            setUserToken(JSON.parse(userTokenStr));
         }
     }
 
@@ -110,7 +160,14 @@ export const AppProvider = ({ children } : { children: any }) => {
     updateAutoPlayNextAyah,
     bookmarks,
     addBookmark,
-    removeBookmark
+    removeBookmark,
+    updateBookmarks,
+    profile,
+    updateProfile,
+    clearProfile,
+    userToken,
+    updateUserToken,
+    clearUserToken
   };
 
   return (
