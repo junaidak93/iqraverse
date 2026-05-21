@@ -44,7 +44,7 @@ export default {
                 data: [
                     {
                         scheme: "iqraverse",
-                        host: "auth"
+                        host: "auth-success"
                     }
                 ],
                 category: [
