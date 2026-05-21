@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LastRead } from '@/models/last-read';
+import { ReadState } from '@/models/read-state';
 import { getSurahByIndex } from '@/services/surah-service';
 import { getParahByIndex } from '@/services/parah-service';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getValueFor, keys } from '@/helper/preferences';
 import { Link } from 'expo-router';
 
-export default function ContinueReadingButton({ lastRead }: { lastRead: LastRead | null }) {
+export default function ContinueReadingButton({ lastRead }: { lastRead: ReadState | null }) {
   const [text, setText] = useState<string | undefined>(undefined);
   const [parahId, setParahId] = useState<number | null>(null);
   const [surahId, setSurahId] = useState<number | null>(null);
@@ -62,7 +62,7 @@ export default function ContinueReadingButton({ lastRead }: { lastRead: LastRead
 
       <Link 
         key={text} 
-        href={{ pathname: "/ayahs", params: { parah_id: parahId, surah_id: surahId, ayah_id: ayahId } }} 
+        href={{ pathname: "/ayahs", params: { isFromLastRead: "true" } }} 
         style={StyleSheet.absoluteFillObject } 
       />
     </TouchableOpacity>

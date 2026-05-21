@@ -8,7 +8,7 @@ type Props = {
   arName: string;
   enName: string;
   enMeaning: string;
-  type: 'parah' | 'surah';
+  type: 'parah' | 'surah' | 'ayah';
   verses?: number;
   ruku?: number;
   parahRange?: string;
@@ -295,7 +295,7 @@ const darkStyles = StyleSheet.create({
     alignItems: 'flex-end',
     marginTop: 16,
     paddingTop: 10,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderColor: '#1F2A24', // subtle divider
   },
 

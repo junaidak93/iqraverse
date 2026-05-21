@@ -1,34 +1,39 @@
-import { getHeaders, BASE_URL } from './content-service';
+import { getHeaders } from './content-service';
+import { API_BASE_URL } from './base-service';
 import { GetAsync } from '@/helper/fetcher/fetcher';
 
 export const getByAyah = async (resourceType: string, resourceId: number, ayahKey: string) => {
-    const url = `${BASE_URL}/${resourceType}` +
+    const url = `${API_BASE_URL}/resources/${resourceType}` +
     `/${resourceId}/by_ayah/${ayahKey}`;
     
-    return await GetAsync(url, await getHeaders());
+    const response = await GetAsync(url, await getHeaders());
+    return response?.data;
 };
 
 export const getBySurah = async (resourceType: string, resourceId: number, surahId: number, perPage = 50, page = 1) => {
-    const url = `${BASE_URL}/${resourceType}` +
+    const url = `${API_BASE_URL}/resources/${resourceType}` +
     `/${resourceId}/by_chapter/${surahId}`;
     
-    return await GetAsync(url, await getHeaders(), {
+    const response = await GetAsync(url, await getHeaders(), {
         per_page: perPage,
         page: page
     });
+    return response?.data;
 };
 
 export const getByParah = async (resourceType: string, resourceId: number, parahId: number, perPage = 50, page = 1) => {
-    const url = `${BASE_URL}/${resourceType}` +
+    const url = `${API_BASE_URL}/resources/${resourceType}` +
     `/${resourceId}/by_juz/${parahId}`;
     
-    return await GetAsync(url, await getHeaders(), {
+    const response = await GetAsync(url, await getHeaders(), {
         per_page: perPage,
         page: page
     });
+    return response?.data;
 };
 
 export const getResources = async (resourceType: string) => {
-    const url = `${BASE_URL}/resources/${resourceType}`;
-    return await GetAsync(url, await getHeaders());
+    const url = `${API_BASE_URL}/resources/${resourceType}`;
+    const response = await GetAsync(url, await getHeaders());
+    return response?.data;
 };

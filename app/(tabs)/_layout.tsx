@@ -14,7 +14,10 @@ const TopTabs = withLayoutContext(Tab.Navigator);
 export default function TabsLayout() {
 
   const { width } = useWindowDimensions();
-  const { isDarkMode, lastRead } = useContext(AppContext);
+  const { 
+    isDarkMode, 
+    lastRead,
+  } = useContext(AppContext);
 
   return (
     <View style={{ flex: 1, backgroundColor: isDarkMode ? '#0f1511' : '#F7F9F8' }}>
@@ -44,7 +47,7 @@ export default function TabsLayout() {
             elevation: 10,
           },
           tabBarItemStyle: {
-            width: width / 2,
+            width: width / 3,
             paddingHorizontal: 0,
             marginStart: 0
           },
@@ -59,6 +62,10 @@ export default function TabsLayout() {
         <TopTabs.Screen
           name="parahs"
           options={{ title: 'By Juz' }}
+        />
+        <TopTabs.Screen
+          name="bookmarks"
+          options={{ title: 'Saved Ayahs' }}
         />
       </TopTabs>
 

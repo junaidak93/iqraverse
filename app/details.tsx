@@ -4,7 +4,7 @@ import { getTafsirByAyah, getTafsirResources } from "@/services/quran-api/tafsir
 import { getTranslationByAyah, getTranslationResources } from "@/services/quran-api/translation-service";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useContext } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions, ActivityIndicator } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import RenderHtml from 'react-native-render-html';
 import { AppContext } from '@/providers/contexts';
@@ -12,7 +12,7 @@ import ExpandableCard from "@/components/expandable-card";
 import AppHeader from "@/components/app-header";
 
 
-export default function Details() {
+export default function Details() {    
     const params = useLocalSearchParams();
     const ayahKey = params.ayahKey as string;
     const isTafsirRequested = params.action === 'Tafsirs';
@@ -115,13 +115,18 @@ export default function Details() {
                             onExpanded={onExpanded}
                             defaultExpanded={false}
                         >
-                            <RenderHtml 
+                            {item.content ? (
+                              <RenderHtml 
                                 baseStyle={{...styles.translation, marginBottom: 20 }}
                                 contentWidth={windowWidth}
-                                source={{
-                                    html: item.content || '<p>No content available</p>'
-                                }}
-                            />
+                                source={{ html: item.content }}
+                              />
+                            ) : (
+                              <View style={{ padding: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                <ActivityIndicator color="#1E7F5C" size="small" />
+                              </View>
+                            )}
+                            
                         </ExpandableCard>
                     ))}
                     

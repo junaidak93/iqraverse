@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as surahService from '@/services/surah-service';
 import { Surah } from '@/models/surah';
@@ -16,6 +16,14 @@ export default function SurahList() {
 
   const { isDarkMode } = useContext(AppContext);
   const styles = isDarkMode ? darkStyles : lightStyles;
+
+  const { width } = useWindowDimensions();
+  const [numColumns, setNumColumns] = useState(Math.floor(width / 180));
+
+  useEffect(() => {
+    const columns = Math.floor(width / 180);
+    setNumColumns(columns > 0 ? columns : 1);
+  }, [width]);
 
   useEffect(() => {
     async function fetchData() {
@@ -41,7 +49,8 @@ export default function SurahList() {
       <SearchBox value={searchText} onChange={setSearchText} />
 
       <FlatList
-        numColumns={2}
+        key={numColumns}
+        numColumns={numColumns}
         //style={styles.list}
         //contentContainerStyle={{ alignSelf: 'flex-start' }}
         data={filteredSurahs}
