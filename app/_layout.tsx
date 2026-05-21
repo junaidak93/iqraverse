@@ -42,6 +42,7 @@ export default function RootLayout() {
             />
             <Stack.Screen name="settings" />
             <Stack.Screen name="profile" />
+            <Stack.Screen name="auth-success" />
           </Stack>
         </AppProvider>
       </SQLiteProvider>

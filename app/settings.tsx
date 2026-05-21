@@ -28,7 +28,8 @@ import { Image } from 'expo-image';
 
 import { getUserProfile, loginWithQuran } from '@/services/quran-api/user-oauth-service';
 
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Auth } from '@/models/auth';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -48,6 +49,23 @@ export default function SettingsScreen() {
     updateUserToken
   } = useContext(AppContext);
 
+  const params = useLocalSearchParams();
+  const accessToken = params?.access_token;
+  const refreshToken = params?.refresh_token;
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!accessToken || !refreshToken) return;
+
+      await getProfile({
+        access_token: accessToken.toString().trim(),
+        refresh_token: refreshToken.toString().trim(),
+      });
+    }
+
+    fetchProfile();
+  }, [accessToken, refreshToken]);
+
   const [reciter, setReciter] =
     useState(
       reciters.find(
@@ -60,7 +78,11 @@ export default function SettingsScreen() {
       router.navigate('/profile');
     } else {
       const token = await loginWithQuran();
+      await getProfile(token);
+    }
+  }
 
+  async function getProfile(token: Auth | null) {
       if (token) {
         updateUserToken(token);
 
@@ -70,7 +92,6 @@ export default function SettingsScreen() {
           updateProfile(_profile);
         }
       }
-    }
   }
 
   function getReciterItem(item: any) {
