@@ -5,7 +5,7 @@ export default {
     name: "IqraVerse",
     slug: "iqraverse",
     version: "1.0.0",
-    orientation: "default",
+    orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "iqraverse",
     userInterfaceStyle: "automatic",
